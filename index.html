@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>经营信息高保真示例</title>
+  <style>
+    :root{
+      --yellow:#ffd600;--yellow2:#ffc400;--ink:#151515;--sub:#777;--line:#ebebeb;
+      --bg:#f5f5f5;--card:#fff;--red:#f5222d;--green:#43b835;--blue:#4b8fe8;--orange:#ff9800;
+      --shadow:0 5px 18px rgba(0,0,0,.07);
+    }
+    *{box-sizing:border-box} body{margin:0;background:#d9d9d9;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Arial,sans-serif}
+    .app{width:min(100%,414px);margin:0 auto;background:var(--bg);min-height:100vh;overflow:hidden}
+    .top{height:115px;background:linear-gradient(180deg,#ffe300 0%,#ffd400 100%);position:relative;padding:10px 10px 0}
+    .status{height:25px;display:flex;justify-content:space-between;align-items:center;padding:0 28px 0 32px;font-size:15px;font-weight:800;letter-spacing:.2px}.sys{display:flex;align-items:center;gap:8px}.signal{display:flex;gap:2px;align-items:end;height:14px}.signal i{display:block;width:4px;background:#111;border-radius:3px}.signal i:nth-child(1){height:5px}.signal i:nth-child(2){height:8px}.signal i:nth-child(3){height:11px}.signal i:nth-child(4){height:14px}.wifi{width:18px;height:12px;border:4px solid #111;border-bottom:0;border-radius:18px 18px 0 0;position:relative}.wifi:after{content:"";position:absolute;width:6px;height:6px;background:#111;border-radius:50%;left:2px;bottom:-6px}.bat{height:19px;min-width:34px;border-radius:6px;background:#171717;color:var(--yellow);display:grid;place-items:center;font-size:13px;font-weight:900}
+    .nav{height:46px;display:grid;grid-template-columns:118px 1fr 75px;align-items:center}.back{font-size:32px;line-height:1;font-weight:300}.logo{margin-left:22px;margin-top:-26px;font-style:italic;font-weight:950;line-height:.9;letter-spacing:-1px}.logo b{font-size:20px}.logo small{display:block;font-size:8px;font-style:normal;letter-spacing:.1px;margin-top:3px}.title{text-align:center;font-size:18px;font-weight:900}.menu{height:30px;border-radius:18px;background:rgba(255,255,255,.76);display:flex;align-items:center;justify-content:center;gap:11px;font-weight:900;font-size:18px}.menu:after{content:"";width:18px;height:18px;border:3px solid #111;border-radius:50%;display:block}
+    .store{margin:-18px 10px 9px;background:#fff;border-radius:10px;box-shadow:var(--shadow);padding:12px 15px;position:relative;z-index:2}.store-title{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:19px;font-weight:900;letter-spacing:-.3px}.state{background:var(--green);color:#fff;border-radius:14px;padding:2px 10px;font-size:12px;font-weight:800}.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.tag{background:var(--yellow);border-radius:4px;padding:4px 8px 3px;font-size:12px;line-height:1;font-weight:850}
+    .panel{background:#fff;border-radius:10px;box-shadow:var(--shadow);margin:0 10px 10px;overflow:hidden}.tabs{height:50px;display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--line)}.tab{border:0;background:#fff;font-size:16px;color:#333;position:relative}.tab.on{font-weight:900}.tab.on:after{content:"";position:absolute;height:3px;background:var(--yellow);left:31%;right:31%;bottom:0;border-radius:3px}.period{padding:10px 14px 8px}.selector-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:center}.month-trigger,.exclude-toggle{height:34px;border:1px solid #e4e4e4;border-radius:7px;background:#fff;display:flex;align-items:center;justify-content:center;gap:7px;color:#222;font-size:13px}.month-trigger b{font-size:15px}.month-trigger i{width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid #777}.exclude-toggle{color:#666}.exclude-toggle.on{border-color:#f3c000;background:#fffbe8;color:#222}.box{width:16px;height:16px;border:1px solid #b8b8b8;border-radius:3px;background:#fff;position:relative;display:inline-block;flex:0 0 auto}.exclude-toggle.on .box{border-color:#f3c000;background:#f3c000}.exclude-toggle.on .box:after{content:"";position:absolute;left:4px;top:1px;width:5px;height:9px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}.selected-time{color:#888;font-size:12px;padding:10px 0 11px;white-space:nowrap}
+    .metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}.metric{min-height:112px;border:1px solid #eee;border-radius:10px;padding:9px 10px 0;background:linear-gradient(180deg,#fff 0%,#fffdf7 100%);overflow:hidden;position:relative;box-shadow:0 3px 11px rgba(0,0,0,.04)}.metric.revenue{--mcolor:#f3c000;--soft:#fff7e5;--icon-bg:#fff4d9}.metric.order{--mcolor:#4b8fe8;--soft:#eef6ff;--icon-bg:#eaf3ff;background:linear-gradient(180deg,#fff 0%,#f8fbff 100%)}.metric.ticket{--mcolor:#ff9800;--soft:#fff3e8;--icon-bg:#fff0e1;background:linear-gradient(180deg,#fff 0%,#fffaf4 100%)}.metric.budget{--mcolor:#43b835;--soft:#eefbf1;--icon-bg:#e8f8eb;background:linear-gradient(180deg,#fff 0%,#f8fff8 100%)}.metric-top{display:grid;grid-template-columns:31px 1fr;gap:8px;align-items:center}.metric-icon{width:31px;height:31px;border-radius:50%;display:grid;place-items:center;background:var(--icon-bg);color:var(--mcolor);font-size:17px;font-weight:950;box-shadow:0 2px 7px rgba(0,0,0,.07)}.metric-icon img{width:23px;height:23px;display:block;object-fit:contain}.metric.revenue .metric-icon img{width:26px;height:26px}.metric.ticket .metric-icon img{width:28px;height:28px}.metric.budget .metric-icon img{width:26px;height:26px}.mt{font-size:12px;font-weight:950;white-space:nowrap}.accent{display:block;width:20px;height:3px;border-radius:5px;background:var(--mcolor);margin-top:5px}.info{display:inline-grid;place-items:center;width:12px;height:12px;border:1px solid #aaa;border-radius:50%;font-size:8px;color:#999;margin-left:3px}.value{margin-top:13px;font-size:20px;font-weight:950;letter-spacing:-.5px;white-space:nowrap}.metric.budget .value{color:#169a43}.value small{font-size:11px;font-weight:850;margin-left:1px}.metric-row{display:flex;align-items:center;justify-content:space-between;gap:5px;margin:10px -10px 0;padding:7px 9px;background:var(--soft);border-top:1px solid rgba(0,0,0,.035);color:#888;font-size:11px}.metric-row .up{margin-top:0;white-space:nowrap}.up{color:var(--red);font-size:11px;font-weight:950;text-align:right;margin-top:6px;background:#fff5f5;border:1px solid #ffd6d3;border-radius:999px;padding:3px 7px;line-height:1.1;box-shadow:0 2px 6px rgba(245,34,45,.08)}.up.down{color:#18a058;background:#f0fff4;border-color:#bfe9cb;box-shadow:0 2px 6px rgba(24,160,88,.08)}
+    .section{padding:11px 10px 12px}.head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.h2{font-size:16px;font-weight:950}.more{font-size:12px;color:#aaa}.grid2{display:grid;grid-template-columns:1fr;gap:5px}.card{border:1px solid var(--line);border-radius:7px;background:#fff;padding:9px}.ct{font-size:13px;font-weight:950;margin-bottom:7px}.legend{display:flex;gap:13px;font-size:11px;color:#555;align-items:center;flex-wrap:wrap}.lg:before{content:"";display:inline-block;width:22px;height:2px;background:var(--yellow2);margin-right:5px;vertical-align:middle}.lg.gray:before{background:#d3d3d3}.chart{height:126px;position:relative;margin-top:2px}.chart svg{width:100%;height:100%;display:block}.chart text{font-size:10px;fill:#555}.chart .grid{stroke:#eee;stroke-width:1}.chart .axis-line{stroke:#d8d8d8;stroke-width:1}.chart .prev{fill:none;stroke:#d9dde2;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}.chart .cur{fill:none;stroke:#f3c000;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.chart .dot{fill:#ffd600;stroke:#fff;stroke-width:1.6}.chart .holiday-dot{fill:#18a058;stroke:#fff;stroke-width:1.7}.chart .holiday-axis-band{fill:#ffdca8;stroke:#f4b164;stroke-width:.5;opacity:.62}.chart .holiday-label{fill:#b87316;font-size:9px;font-weight:900}.chart .chart-hit{fill:transparent;cursor:pointer}.chart .holiday-band{fill:#ffe7b8;opacity:.48}.chart .holiday-band.core{fill:#ffd38a;opacity:.72}.chart .holiday-star{fill:#f08a2a;font-size:13px;font-weight:900;paint-order:stroke;stroke:#fff;stroke-width:2px}.chart .holiday-hit{fill:transparent;cursor:pointer}.holiday-note{display:inline-flex;align-items:center;gap:4px;margin-left:auto;color:#999;font-size:10px}.holiday-note:before{content:"";width:7px;height:7px;border-radius:50%;background:#18a058;box-sizing:border-box}.chart-tip{position:absolute;display:none;left:50%;top:26px;transform:translateX(-50%);padding:6px 8px;border-radius:7px;background:rgba(20,20,20,.88);color:#fff;font-size:10px;line-height:1.55;white-space:normal;min-width:128px;max-width:190px;box-shadow:0 4px 14px rgba(0,0,0,.18);z-index:2}.chart-tip b{font-size:11px}.chart-tip.show{display:block}.summary{font-size:19px;font-weight:950;margin:26px 0 14px}.week{margin-top:5px}.week-chart{height:99px;display:grid;grid-template-columns:30px 1fr;gap:5px}.axis{display:flex;flex-direction:column;justify-content:space-between;padding:2px 0 22px;font-size:10px;color:#555}.bars{display:grid;grid-template-columns:repeat(7,1fr);gap:14px;align-items:end;border-bottom:1px solid #d2d2d2;padding:15px 6px 20px;position:relative}.bars:before{content:"";position:absolute;left:0;right:0;top:49px;border-top:1px solid #f2f2f2}.vbar{height:var(--h);min-height:25px;border-radius:3px 3px 0 0;background:linear-gradient(180deg,#ffd800,#f7b700);position:relative}.vbar:before{content:attr(data-v);position:absolute;top:-19px;left:50%;transform:translateX(-50%);font-size:10px;color:#555;white-space:nowrap}.vbar:after{content:attr(data-d);position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);font-size:10px;color:#555;white-space:nowrap}
+    .biz{display:grid;grid-template-columns:1fr;gap:5px}.split{display:grid;grid-template-columns:51px 1fr 51px;align-items:center;gap:4px;margin-top:8px}.pill{width:29px;height:29px;border-radius:50%;display:grid;place-items:center;background:var(--orange);color:#fff;font-weight:950;font-size:13px}.pill.b{background:var(--blue)}.side{font-size:12px;line-height:1.72}.side strong{display:block;font-size:18px}.side.o strong{color:var(--orange)}.side.b strong{color:var(--blue)}.donut{width:74px;height:74px;border-radius:50%;background:conic-gradient(var(--orange) 0 54%,var(--blue) 54%);position:relative;margin:auto}.donut:after{content:"";position:absolute;inset:18px;border-radius:50%;background:#fff}.channels{display:grid;grid-template-columns:1fr 1fr;gap:10px}.channels h4{margin:0 0 7px;font-size:12px}.row{display:grid;grid-template-columns:48px 1fr 28px;gap:6px;align-items:center;margin:7px 0;font-size:10px}.track{height:6px;background:#eee;border-radius:8px;overflow:hidden}.track i{display:block;width:var(--w);height:100%;background:var(--c);border-radius:8px}.ownership{display:grid;grid-template-columns:118px 1fr;gap:10px;align-items:center;padding-top:1px}.own-left{display:grid;justify-items:center;gap:6px}.own-donut{--dine:50%;width:86px;height:86px;border-radius:50%;background:conic-gradient(var(--yellow2) 0 var(--dine),var(--blue) var(--dine) 100%);position:relative;box-shadow:inset 0 0 0 1px rgba(0,0,0,.03),0 4px 10px rgba(0,0,0,.04)}.own-donut:after{content:"";position:absolute;inset:19px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 1px #f1f1f1}.own-donut span{position:absolute;inset:0;display:grid;place-items:center;text-align:center;font-size:10px;color:#777;font-weight:850;z-index:1;line-height:1.25}.own-pcts{display:flex;gap:8px;font-size:10px;font-weight:900}.own-pcts .dine{color:#d49a00}.own-pcts .take{color:var(--blue)}.own-metrics{display:grid;gap:7px}.own-group{border:1px solid #f0f0f0;border-radius:7px;padding:7px 8px;background:#fff}.own-group.dine{background:linear-gradient(90deg,#fffaf0 0%,#fff 76%)}.own-group.take{background:linear-gradient(90deg,#f4f8ff 0%,#fff 76%)}.own-title{display:flex;align-items:center;gap:5px;margin-bottom:5px;font-size:12px;font-weight:950}.own-title i{width:7px;height:7px;border-radius:50%;background:var(--c)}.own-title strong{margin-left:auto;color:var(--c);font-size:12px}.own-kv{display:grid;grid-template-columns:42px 1fr;gap:5px;margin-top:3px;font-size:10px;color:#888}.own-kv b{color:#222;text-align:right;font-size:11px}.channel-detail{overflow:hidden}.ch-sub{margin-top:-4px;margin-bottom:8px;color:#999;font-size:10px}.ch-table{border:1px solid #f0f0f0;border-radius:8px;overflow:hidden}.ch-head,.ch-row{display:grid;grid-template-columns:1.4fr .95fr .82fr .82fr;align-items:center;column-gap:6px}.ch-head{height:30px;background:#fafafa;color:#999;font-size:10px}.ch-head span{padding:0 9px}.ch-row{min-height:36px;border-top:1px solid #f1f1f1;font-size:11px;background:#fff}.ch-row span{padding:0 9px}.ch-name{display:flex;align-items:center;gap:6px;min-width:0}.ch-name i{width:3px;height:16px;border-radius:4px;background:var(--c);flex:0 0 auto}.ch-name b{font-weight:850;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ch-name em{font-style:normal;font-size:9px;line-height:1;border-radius:999px;padding:2px 5px;background:var(--tag-bg);color:var(--tag-c);white-space:nowrap}.ch-num{text-align:right;font-weight:850;white-space:nowrap}.ch-order,.ch-ticket{text-align:right;white-space:nowrap;color:#333}
+    .bottom{display:grid;grid-template-columns:1fr;gap:5px}.cat{display:grid;grid-template-columns:42px 1fr 48px;gap:7px;align-items:center;margin:10px 0;font-size:11px;border:0;background:transparent;padding:0;width:100%;font-family:inherit;color:inherit;text-align:left;cursor:pointer}.cat .track i{background:linear-gradient(90deg,#ffe000,#f6bd00)}.top-head{display:flex;justify-content:space-between;align-items:center}.link-btn{border:0;background:transparent;padding:0;font-family:inherit;color:inherit}.detail-page[hidden]{display:none}.detail-page{position:fixed;z-index:80;top:0;bottom:0;left:50%;width:min(100%,414px);transform:translateX(-50%);background:var(--bg);overflow:auto;box-shadow:0 0 0 999px rgba(0,0,0,.18)}.detail-top{height:50px;background:#fff;display:grid;grid-template-columns:44px 1fr 44px;align-items:center;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:2}.detail-back{border:0;background:#fff;font-size:28px;color:#333}.detail-title{text-align:center;font-size:16px;font-weight:950}.detail-body{padding:10px}.detail-sub{color:#888;font-size:12px;margin:0 0 8px}.detail-card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:9px}.detail-row{display:grid;grid-template-columns:1fr 62px 72px;gap:8px;align-items:center;min-height:34px;border-bottom:1px solid #f0f0f0;font-size:12px}.detail-card button.detail-row{width:100%;border:0;background:#fff;padding:0;font-family:inherit;font-size:12px;color:inherit;text-align:left;cursor:pointer}.detail-row:last-child{border-bottom:0}.detail-row b{text-align:right}.detail-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.detail-code{display:block;color:#aaa;font-size:10px;margin-top:2px}.detail-category{grid-template-columns:56px 1fr 62px}.detail-empty{color:#999;font-size:12px;padding:16px;text-align:center}.note-chip{display:inline-block;background:#fff2bd;color:#6e5600;border-radius:4px;padding:4px 8px;font-size:11px;margin-bottom:7px}.note-chip[hidden]{display:none}.top-head .info{cursor:pointer}.rank{display:grid;grid-template-columns:20px 1fr 58px;align-items:center;gap:7px;min-height:28px;margin:4px 0;font-size:11px}.rank-main{min-width:0;display:grid;gap:4px}.rank-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.1}.rank-bar{height:5px;border-radius:999px;background:#f0f0f0;overflow:hidden}.rank-bar i{display:block;width:var(--w);height:100%;border-radius:999px;background:linear-gradient(90deg,#ffe000,#f6bd00)}.num{width:14px;height:14px;border-radius:50%;display:grid;place-items:center;background:#eee;color:#555;font-size:9px;font-weight:900}.hot{background:linear-gradient(#ffbf00,#ff9f00);color:#fff}.cnt{text-align:right;white-space:nowrap;font-weight:850}.foot{padding:2px 18px 16px;color:#b5b5b5;font-size:11px}
+    .month-picker[hidden]{display:none}.month-picker{position:fixed;inset:0;z-index:50;display:flex;justify-content:center;align-items:flex-start;padding-top:128px}.picker-mask{position:absolute;inset:0;background:rgba(0,0,0,.18)}.picker-panel{position:relative;width:min(100%,414px);background:#fff;border-radius:0 0 12px 12px;box-shadow:0 12px 30px rgba(0,0,0,.16);overflow:hidden}.picker-head{height:42px;display:grid;grid-template-columns:44px 1fr 44px;align-items:center;border-bottom:1px solid #eee;color:#596074}.picker-head button{border:0;background:#fff;font-size:26px;color:#596074}.picker-head strong{text-align:center;font-size:15px}.month-grid{display:grid;grid-template-columns:repeat(4,1fr);padding:16px 8px 20px;row-gap:24px}.month-option{position:relative;height:28px;border:0;background:#fff;color:#596074;font-size:15px}.month-option.muted{color:#d8dde8;cursor:not-allowed}.month-option.on{font-weight:900;color:#111}.month-option.on:after{content:"";position:absolute;right:31%;top:3px;width:5px;height:5px;border-radius:50%;background:#f5222d}
+    @media(max-width:370px){.grid2,.biz,.bottom{grid-template-columns:1fr}.top{height:124px}.store{margin-top:-20px}.selected-time{white-space:normal}.metric{min-height:90px}.value{font-size:18px}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header class="top"><div class="status"><span>10:46</span><div class="sys"><span class="signal"><i></i><i></i><i></i><i></i></span><span class="wifi"></span><span class="bat">80</span></div></div><div class="nav"><div><div class="back">‹</div><div class="logo"><b>真功夫</b><small>TRUE KUNGFU</small></div></div><div class="title">经营信息</div><div class="menu">•••</div></div></header>
+  <section class="store"><div class="store-title">南沙总部店-CN020148 <span class="state">正常</span></div><div class="tags"><span class="tag">全时段茶档</span><span class="tag">O办公区</span><span class="tag">T5</span><span class="tag">00:00–23:59</span><span class="tag">直营店</span></div></section>
+  <section class="panel"><div class="tabs"><button class="tab">当日</button><button class="tab on">月度</button><button class="tab">年度</button><button class="tab">自定义</button></div><div class="period"><div class="selector-row"><button class="month-trigger" id="monthTrigger" type="button"><b id="selectedMonth">2026年6月</b><i></i></button><button class="exclude-toggle on" id="excludeToggle" type="button" aria-pressed="true"><span class="box"></span><span>剔除团订</span></button></div><div class="selected-time" id="selectedTime">已选时间： 2026-06-01 至 2026-06-30</div><div class="metrics"><article class="metric revenue"><div class="metric-top"><span class="metric-icon"><img src="assets/revenue-money-icon.png?v=20260708" alt=""></span><div><div class="mt">月累计营收</div><span class="accent"></span></div></div><div class="value">¥ 526,800</div><div class="metric-row"><span>较上月同期</span><span class="up">+6.8% ↑</span></div></article><article class="metric order"><div class="metric-top"><span class="metric-icon"><img src="assets/order-clipboard-icon.png?v=20260708" alt=""></span><div><div class="mt">订单量</div><span class="accent"></span></div></div><div class="value">36,240<small>单</small></div><div class="metric-row"><span>较上月同期</span><span class="up">+4.2% ↑</span></div></article><article class="metric ticket"><div class="metric-top"><span class="metric-icon"><img src="assets/ticket-customer-icon.png?v=20260708" alt=""></span><div><div class="mt">客单价</div><span class="accent"></span></div></div><div class="value">¥ 30.5</div><div class="metric-row"><span>较上月同期</span><span class="up">+2.1% ↑</span></div></article><article class="metric budget"><div class="metric-top"><span class="metric-icon"><img src="assets/budget-target-icon-line-2ring.png?v=20260708d" alt=""></span><div><div class="mt">预算完成率</div><span class="accent"></span></div></div><div class="value">72%</div><div class="metric-row"><span>较上月同期</span><span class="up">+3.5% ↑</span></div></article></div></div></section>
+  <section class="panel section"><div class="head"><div class="h2">经营趋势</div></div><div class="grid2"><div class="card"><div class="ct">每日营收趋势（元）</div><div class="legend"><span class="lg" id="currentLegend">2026年6月</span><span class="lg gray" id="prevLegend">2026年5月</span><span class="holiday-note">法定节假日</span></div><div class="chart"><svg viewBox="0 0 360 118" role="img" aria-label="每日营收趋势假数据折线图"><line class="grid" x1="38" y1="14" x2="350" y2="14"></line><line class="grid" x1="38" y1="38" x2="350" y2="38"></line><line class="grid" x1="38" y1="62" x2="350" y2="62"></line><line class="axis-line" x1="38" y1="88" x2="350" y2="88"></line><text x="12" y="17">6万</text><text x="12" y="41">4万</text><text x="12" y="65">2万</text><text x="24" y="91">0</text><path class="prev" d="M42 73 L62 68 L82 58 L102 38 L122 35 L142 62 L162 70 L182 56 L202 34 L222 31 L242 60 L262 57 L282 36 L302 32 L322 58 L342 55"></path><rect class="holiday-band" x="116" y="14" width="58" height="74" rx="4"></rect><rect class="holiday-band core" x="133" y="14" width="18" height="74" rx="3"></rect><path class="cur" d="M42 72 L62 64 L82 55 L102 32 L122 52 L142 76 L162 58 L182 31 L202 28 L222 57 L242 55 L262 33 L282 30 L302 58 L322 34 L342 56"></path><circle class="dot" cx="42" cy="72" r="3.5"></circle><circle class="dot" cx="62" cy="64" r="3.5"></circle><circle class="dot" cx="82" cy="55" r="3.5"></circle><circle class="dot" cx="102" cy="32" r="3.5"></circle><circle class="dot" cx="122" cy="52" r="3.5"></circle><text class="holiday-star" x="142" y="80" text-anchor="middle">★</text><circle class="dot" cx="162" cy="58" r="3.5"></circle><circle class="dot" cx="182" cy="31" r="3.5"></circle><circle class="dot" cx="202" cy="28" r="3.5"></circle><circle class="dot" cx="222" cy="57" r="3.5"></circle><circle class="dot" cx="242" cy="55" r="3.5"></circle><circle class="dot" cx="262" cy="33" r="3.5"></circle><circle class="dot" cx="282" cy="30" r="3.5"></circle><circle class="dot" cx="302" cy="58" r="3.5"></circle><circle class="dot" cx="322" cy="34" r="3.5"></circle><circle class="dot" cx="342" cy="56" r="3.5"></circle><rect class="holiday-hit" x="116" y="12" width="58" height="96" data-tip="06-09 至 06-11 端午假期｜06-10 营收 ¥18,900"></rect><text x="38" y="111">01</text><text x="82" y="111">05</text><text x="126" y="111">09</text><text x="170" y="111">13</text><text x="216" y="111">17</text><text x="260" y="111">21</text><text x="304" y="111">25</text><text x="340" y="111">30</text></svg><div class="chart-tip" id="holidayTip">06-09 至 06-11 端午假期｜06-10 营收 ¥18,900</div></div></div></div><div class="card week"><div class="ct">星期表现（日均营收）</div><div class="week-chart"><div class="axis"><span>6万</span><span>4万</span><span>2万</span><span>0</span></div><div class="bars"><div class="vbar" style="--h:36px" data-v="3.2万" data-d="周一"></div><div class="vbar" style="--h:33px" data-v="3.1万" data-d="周二"></div><div class="vbar" style="--h:38px" data-v="3.3万" data-d="周三"></div><div class="vbar" style="--h:42px" data-v="3.4万" data-d="周四"></div><div class="vbar" style="--h:48px" data-v="3.6万" data-d="周五"></div><div class="vbar" style="--h:62px" data-v="4.6万" data-d="周六"></div><div class="vbar" style="--h:67px" data-v="4.8万" data-d="周日"></div></div></div></div></section>
+  <section class="panel section"><div class="h2">销售结构</div><div class="biz" style="margin-top:7px"><div class="card ownership-card"><div class="ct">业务归属（营收占比）</div><div class="ownership"><div class="own-left"><div class="own-donut" style="--dine:46.8%"><span>业务<br>归属</span></div><div class="own-pcts"><span class="dine own-dine-pct">堂食 46.8%</span><span class="take own-take-pct">外送 53.2%</span></div></div><div class="own-metrics"></div></div></div><div class="card channel-detail"><div class="ct">渠道明细</div><div class="ch-table"><div class="ch-head"><span>渠道</span><span>营收</span><span>订单</span><span>客单价</span></div><div class="ch-body"></div></div></div><div class="card"><div class="ct">渠道结构（营收占比）</div><div class="channels"><div><h4 style="color:var(--yellow2)">堂食 46.8%</h4><div class="row"><span>小程序</span><span class="track"><i style="--w:100%;--c:var(--yellow2)"></i></span><b>37.0%</b></div><div class="row"><span>堂食POS</span><span class="track"><i style="--w:26%;--c:var(--yellow2)"></i></span><b>9.8%</b></div></div><div><h4 style="color:var(--blue)">外送 53.2%</h4><div class="row"><span>淘宝闪购</span><span class="track"><i style="--w:100%;--c:var(--blue)"></i></span><b>26.1%</b></div><div class="row"><span>美团</span><span class="track"><i style="--w:70%;--c:var(--blue)"></i></span><b>18.2%</b></div><div class="row"><span>京东秒送</span><span class="track"><i style="--w:28%;--c:var(--blue)"></i></span><b>7.2%</b></div><div class="row"><span>小程序</span><span class="track"><i style="--w:7%;--c:var(--blue)"></i></span><b>1.7%</b></div></div></div></div></div></section>
+  <section class="panel section"><div class="bottom"><div class="card"><div class="top-head"><div class="ct">????TOP10 <span class="info" id="top10Info" role="button" tabindex="0" aria-controls="top10Note" aria-expanded="false">?</span></div><button class="more link-btn" id="allProductSalesLink" type="button">?? ?</button></div><div class="note-chip" id="top10Note" hidden>??????????</div></div></div><p class="foot">注：以上数据均为统计区间内汇总结果，具体以系统明细数据为准。</p>
+</div>
+<div class="month-picker" id="monthPicker" hidden><div class="picker-mask" id="pickerMask"></div><div class="picker-panel"><div class="picker-head"><button type="button" id="prevYear">‹</button><strong id="pickerYear">2026</strong><button type="button" id="nextYear">›</button></div><div class="month-grid"><button class="month-option" type="button" data-month="1">一月</button><button class="month-option" type="button" data-month="2">二月</button><button class="month-option" type="button" data-month="3">三月</button><button class="month-option" type="button" data-month="4">四月</button><button class="month-option" type="button" data-month="5">五月</button><button class="month-option on" type="button" data-month="6">六月</button><button class="month-option" type="button" data-month="7">七月</button><button class="month-option muted" type="button" data-month="8">八月</button><button class="month-option muted" type="button" data-month="9">九月</button><button class="month-option muted" type="button" data-month="10">十月</button><button class="month-option muted" type="button" data-month="11">十一月</button><button class="month-option muted" type="button" data-month="12">十二月</button></div></div></div>
+<section class="detail-page" id="productDetailPage" hidden><div class="detail-top"><button class="detail-back" id="productDetailBack" type="button">&#8249;</button><div class="detail-title" id="productDetailTitle">&#20135;&#21697;&#26126;&#32454;</div><div></div></div><div class="detail-body"><p class="detail-sub" id="productDetailSub"></p><div class="detail-card" id="productDetailContent"></div></div></section>
+<script src="assets/revenue-data.js?v=20260708data"></script>
+<script>
+(() => {
+  const source = window.SST_REVENUE_DATA || { records: [], budgets: {}, normalOrderType: '' };
+  const records = source.records || [];
+  const budgets = source.budgets || {};
+  const normalOrderType = source.normalOrderType || '';
+  const pad = value => String(value).padStart(2, '0');
+  const keyOf = (year, month) => year * 100 + month;
+  const monthEnd = (year, month) => pad(new Date(year, month, 0).getDate());
+  const monthLabel = key => `${Math.floor(key / 100)}年${key % 100}月`;
+  const maxDataDate = records.reduce((max, row) => !max || row.d > max ? row.d : max, '2026-07-01');
+  const maxDateParts = maxDataDate.split('-').map(Number);
+  const currentLimit = { year: maxDateParts[0], month: maxDateParts[1] };
+  const monthState = { year: 2026, month: 6 };
+  const selectedMonth = document.getElementById('selectedMonth');
+  const selectedTime = document.getElementById('selectedTime');
+  const monthPicker = document.getElementById('monthPicker');
+  const pickerYear = document.getElementById('pickerYear');
+  const excludeToggle = document.getElementById('excludeToggle');
+  const isFutureMonth = (year, month) => year > currentLimit.year || (year === currentLimit.year && month > currentLimit.month);
+  const prevMonthKey = key => {
+    const year = Math.floor(key / 100);
+    const month = key % 100;
+    return month === 1 ? (year - 1) * 100 + 12 : year * 100 + month - 1;
+  };
+  const shouldExcludeGroup = () => excludeToggle.classList.contains('on');
+  const rowsFor = (key, excludeGroup = shouldExcludeGroup(), dayLimit = null) => records.filter(row => {
+    const inMonth = row.m === key;
+    const inOrderScope = !excludeGroup || row.type === normalOrderType;
+    const inDayScope = dayLimit == null || Number(row.d.slice(8, 10)) <= dayLimit;
+    return inMonth && inOrderScope && inDayScope;
+  });
+  const sum = (rows, field) => rows.reduce((total, row) => total + Number(row[field] || 0), 0);
+  const summary = (key, dayLimit = null) => {
+    const rows = rowsFor(key, shouldExcludeGroup(), dayLimit);
+    const revenue = sum(rows, 'revenue');
+    const orders = sum(rows, 'orders');
+    const budget = Number(budgets[String(key)] || 0);
+    return { rows, revenue, orders, ticket: orders ? revenue / orders : 0, budget, completion: budget ? revenue / budget * 100 : 0 };
+  };
+  const compareDayLimit = key => {
+    const rows = rowsFor(key);
+    if (!rows.length) return null;
+    const year = Math.floor(key / 100);
+    const month = key % 100;
+    const lastDataDay = Math.max(...rows.map(row => Number(row.d.slice(8, 10))));
+    const daysInMonth = new Date(year, month, 0).getDate();
+    return lastDataDay < daysInMonth ? lastDataDay : null;
+  };
+  const formatInt = value => Math.round(value).toLocaleString('en-US');
+  const formatMoney = value => `¥ ${formatInt(value)}`;
+  const formatPct = value => `${Math.round(value)}%`;
+  const formatAxis = value => value >= 10000 ? `${Number((value / 10000).toFixed(value % 10000 ? 1 : 0))}万` : formatInt(value);
+  const formatTrendAxis = value => value === 0 ? '0' : `${Number((value / 10000).toFixed(1))}万`;
+  const trendMax = value => Math.max(12000, Math.ceil(value / 3000) * 3000);
+  const niceMax = value => {
+    if (value <= 12000) return 12000;
+    if (value <= 20000) return 20000;
+    if (value <= 30000) return 30000;
+    if (value <= 60000) return 60000;
+    if (value <= 100000) return 100000;
+    return Math.ceil(value / 100000) * 100000;
+  };
+  const setGrowth = (selector, current, previous) => {
+    const el = document.querySelector(selector);
+    if (!previous) { el.textContent = '--'; el.classList.remove('down'); return; }
+    const pct = (current - previous) / previous * 100;
+    el.textContent = `${pct >= 0 ? '+' : ''}${pct.toFixed(1)}% ${pct >= 0 ? '↑' : '↓'}`;
+    el.classList.toggle('down', pct < 0);
+  };
+  const dailyMap = (key, dayLimit = null) => {
+    const map = new Map();
+    rowsFor(key, shouldExcludeGroup(), dayLimit).forEach(row => {
+      const day = Number(row.d.slice(8, 10));
+      const current = map.get(day) || { revenue: 0, orders: 0 };
+      current.revenue += Number(row.revenue || 0);
+      current.orders += Number(row.orders || 0);
+      map.set(day, current);
+    });
+    return map;
+  };
+  const renderMetrics = () => {
+    const key = keyOf(monthState.year, monthState.month);
+    const cur = summary(key);
+    const compareLimit = compareDayLimit(key);
+    const prev = summary(prevMonthKey(key), compareLimit);
+    document.querySelector('.metric.revenue .value').textContent = formatMoney(cur.revenue);
+    document.querySelector('.metric.order .value').innerHTML = `${formatInt(cur.orders)}<small>单</small>`;
+    document.querySelector('.metric.ticket .value').textContent = `¥ ${cur.ticket.toFixed(1)}`;
+    document.querySelector('.metric.budget .value').textContent = formatPct(cur.completion);
+    setGrowth('.metric.revenue .up', cur.revenue, prev.revenue);
+    setGrowth('.metric.order .up', cur.orders, prev.orders);
+    setGrowth('.metric.ticket .up', cur.ticket, prev.ticket);
+    setGrowth('.metric.budget .up', cur.completion, prev.completion);
+  };
+  const renderSelectedTime = () => {
+    const rows = rowsFor(keyOf(monthState.year, monthState.month));
+    if (rows.length) {
+      const dates = rows.map(row => row.d).sort();
+      selectedTime.textContent = `已选时间： ${dates[0]} 至 ${dates[dates.length - 1]}`;
+    } else {
+      selectedTime.textContent = `已选时间： ${monthState.year}-${pad(monthState.month)}-01 至 ${monthState.year}-${pad(monthState.month)}-${monthEnd(monthState.year, monthState.month)}`;
+    }
+  };
+  const renderChart = () => {
+    const key = keyOf(monthState.year, monthState.month);
+    const prevKey = prevMonthKey(key);
+    document.getElementById('currentLegend').textContent = monthLabel(key);
+    document.getElementById('prevLegend').textContent = monthLabel(prevKey);
+    const compareLimit = compareDayLimit(key);
+    const curDaily = dailyMap(key);
+    const prevDaily = dailyMap(prevKey, compareLimit);
+    const curDays = new Date(monthState.year, monthState.month, 0).getDate();
+    const prevDate = new Date(monthState.year, monthState.month - 2, 1);
+    const prevDays = new Date(prevDate.getFullYear(), prevDate.getMonth() + 1, 0).getDate();
+    const maxValue = trendMax(Math.max(1, ...[...curDaily.values(), ...prevDaily.values()].map(item => item.revenue)));
+    const plot = { left: 42, right: 344, top: 14, bottom: 88 };
+    const xFor = (day, days = curDays) => plot.left + (day - 1) * ((plot.right - plot.left) / Math.max(days - 1, 1));
+    const yFor = value => plot.bottom - Math.min(value, maxValue) / maxValue * (plot.bottom - plot.top);
+    const pathFor = (map, days) => {
+      const points = [...map.entries()].sort((a, b) => a[0] - b[0]).map(([day, item]) => ({ x: xFor(day, days), y: yFor(item.revenue) }));
+      if (!points.length) return '';
+      if (points.length === 1) return `M${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)}`;
+      return points.map((point, index) => {
+        if (index === 0) return `M${point.x.toFixed(1)} ${point.y.toFixed(1)}`;
+        const prev = points[index - 1];
+        const cp1x = prev.x + (point.x - prev.x) * .45;
+        const cp2x = point.x - (point.x - prev.x) * .45;
+        return `C${cp1x.toFixed(1)} ${prev.y.toFixed(1)} ${cp2x.toFixed(1)} ${point.y.toFixed(1)} ${point.x.toFixed(1)} ${point.y.toFixed(1)}`;
+      }).join(' ');
+    };
+    const holidayRules = key === 202606 ? [{ start: 19, end: 21, festivalDay: 19, name: '\u7aef\u5348' }] : [];
+    const holidayForDay = day => holidayRules.find(rule => day >= rule.start && day <= rule.end);
+    const holidayCenterDay = rule => rule.festivalDay || Math.round((rule.start + rule.end) / 2);
+    const xTicks = [...new Set([1, 7, 13, 19, 25, curDays].filter(day => day <= curDays))];
+    const visibleDays = new Set([...xTicks, ...holidayRules.map(holidayCenterDay)]);
+    const compareText = day => {
+      const cur = curDaily.get(day)?.revenue || 0;
+      const prev = prevDaily.get(day)?.revenue || 0;
+      if (!prev) return '\u8f83\u4e0a\u6708\u540c\u65e5 --';
+      const pct = (cur - prev) / prev * 100;
+      return `\u8f83\u4e0a\u6708\u540c\u65e5 ${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%`;
+    };
+    const tipFor = (day, item) => {
+      const holiday = holidayForDay(day);
+      const lines = [`<b>${monthState.year}-${pad(monthState.month)}-${pad(day)}</b>`, `\u8425\u6536 ${formatMoney(item.revenue)}`, compareText(day)];
+      if (holiday) lines.push(`\u8282\u5047\u65e5 ${holiday.name}`);
+      return lines.join('<br>');
+    };
+    const curMarks = [...curDaily.entries()].sort((a, b) => a[0] - b[0]).map(([day, item]) => {
+      const x = xFor(day).toFixed(1);
+      const y = yFor(item.revenue).toFixed(1);
+      const holiday = holidayForDay(day);
+      const isHolidayCenter = holiday && day === holidayCenterDay(holiday);
+      const showPoint = visibleDays.has(day);
+      const holidayDot = isHolidayCenter ? `<circle class="holiday-dot" cx="${x}" cy="${y}" r="3.2"></circle>` : '';
+      const dot = showPoint && !isHolidayCenter ? `<circle class="dot" cx="${x}" cy="${y}" r="2.7"></circle>` : '';
+      return `${holidayDot}${dot}<circle class="chart-hit" cx="${x}" cy="${y}" r="9" data-tip="${escapeHtml(tipFor(day, item))}"></circle>`;
+    }).join('');
+    const yTicks = [maxValue, maxValue * .75, maxValue * .5, maxValue * .25, 0];
+    const ySvg = yTicks.map(value => {
+      const y = yFor(value).toFixed(1);
+      const lineClass = value === 0 ? 'axis-line' : 'grid';
+      return `<line class="${lineClass}" x1="${plot.left}" y1="${y}" x2="350" y2="${y}"></line><text x="7" y="${(Number(y) + 3).toFixed(1)}">${formatTrendAxis(value)}</text>`;
+    }).join('');
+    const xSvg = xTicks.map(day => `<text x="${xFor(day).toFixed(1)}" y="119" text-anchor="middle">${pad(day)}</text>`).join('');
+    const holidaySvg = holidayRules.map(rule => {
+      if (rule.start === rule.end) return '';
+      const x = xFor(rule.start) - 2;
+      const width = xFor(rule.end) - xFor(rule.start) + 4;
+      return `<rect class="holiday-axis-band" x="${x.toFixed(1)}" y="${(plot.bottom - 1.5).toFixed(1)}" width="${width.toFixed(1)}" height="4" rx="2"></rect>`;
+    }).join('');
+    const chart = document.querySelector('.chart');
+    chart.innerHTML = `<svg viewBox="0 0 360 126" role="img" aria-label="每日营收趋势折线图">${ySvg}<path class="prev" d="${pathFor(prevDaily, prevDays)}"></path><path class="cur" d="${pathFor(curDaily, curDays)}"></path>${curMarks}${holidaySvg}${xSvg}</svg><div class="chart-tip" id="chartTip"></div>`;
+    const tip = document.getElementById('chartTip');
+    document.querySelectorAll('.chart-hit').forEach(hitEl => hitEl.addEventListener('click', event => {
+      const rect = chart.getBoundingClientRect();
+      const x = Math.min(Math.max(event.clientX - rect.left, 76), rect.width - 76);
+      tip.innerHTML = hitEl.dataset.tip;
+      tip.style.left = `${x}px`;
+      tip.style.top = `${Math.max(8, event.clientY - rect.top - 58)}px`;
+      tip.classList.add('show');
+    }));
+    chart.onmouseleave = () => tip.classList.remove('show');
+  };
+  const renderWeek = () => {
+    const labels = ['周一', '周二', '周三', '周四', '周五', '周日'];
+    labels.splice(5, 0, '周六');
+    const map = dailyMap(keyOf(monthState.year, monthState.month));
+    const buckets = labels.map(label => ({ label, total: 0, days: 0 }));
+    map.forEach((item, day) => {
+      const index = (new Date(monthState.year, monthState.month - 1, day).getDay() + 6) % 7;
+      buckets[index].total += item.revenue;
+      buckets[index].days += 1;
+    });
+    const values = buckets.map(bucket => bucket.days ? bucket.total / bucket.days : 0);
+    const maxValue = niceMax(Math.max(1, ...values));
+    document.querySelector('.week-chart .axis').innerHTML = `<span>${formatAxis(maxValue)}</span><span>${formatAxis(maxValue / 2)}</span><span>${formatAxis(maxValue / 4)}</span><span>0</span>`;
+    document.querySelector('.week-chart .bars').innerHTML = buckets.map((bucket, index) => {
+      const value = values[index];
+      const height = Math.max(12, Math.round(value / maxValue * 67));
+      return `<div class="vbar" style="--h:${height}px" data-v="${formatAxis(value)}" data-d="${bucket.label}"></div>`;
+    }).join('');
+  };
+  const renderOwnership = () => {
+    const rows = rowsFor(keyOf(monthState.year, monthState.month));
+    const totalRevenue = sum(rows, 'revenue');
+    const buildStats = biz => {
+      const groupRows = rows.filter(row => row.biz === biz);
+      const revenue = sum(groupRows, 'revenue');
+      const orders = sum(groupRows, 'orders');
+      return { biz, revenue, orders, ticket: orders ? revenue / orders : 0, pct: totalRevenue ? revenue / totalRevenue * 100 : 0 };
+    };
+    const dine = buildStats('\u5802\u98df');
+    const take = buildStats('\u5916\u9001');
+    document.querySelector('.own-donut').style.setProperty('--dine', `${dine.pct.toFixed(1)}%`);
+    document.querySelector('.own-dine-pct').textContent = `\u5802\u98df ${dine.pct.toFixed(1)}%`;
+    document.querySelector('.own-take-pct').textContent = `\u5916\u9001 ${take.pct.toFixed(1)}%`;
+    const groupHtml = (item, cls, colorVar) => `<div class="own-group ${cls}"><div class="own-title" style="--c:var(${colorVar})"><i></i><span>${item.biz}</span><strong>${item.pct.toFixed(1)}%</strong></div><div class="own-kv"><span>\u8425\u6536</span><b>${formatMoney(item.revenue)}</b></div><div class="own-kv"><span>\u8ba2\u5355</span><b>${formatInt(item.orders)}\u5355</b></div><div class="own-kv"><span>\u5ba2\u5355\u4ef7</span><b>\u00a5 ${item.ticket.toFixed(1)}</b></div></div>`;
+    document.querySelector('.own-metrics').innerHTML = groupHtml(dine, 'dine', '--yellow2') + groupHtml(take, 'take', '--blue');
+  };  const renderChannelDetail = () => {
+    const rows = rowsFor(keyOf(monthState.year, monthState.month));
+    const map = new Map();
+    rows.forEach(row => {
+      const key = `${row.biz}||${row.channel}`;
+      if (!map.has(key)) map.set(key, { biz: row.biz, channel: row.channel, revenue: 0, orders: 0 });
+      const item = map.get(key);
+      item.revenue += Number(row.revenue || 0);
+      item.orders += Number(row.orders || 0);
+    });
+    const items = [...map.values()].sort((a, b) => b.revenue - a.revenue);
+    const rowHtml = items.map(item => {
+      const isDine = item.biz === '\u5802\u98df';
+      const colorVar = isDine ? '--yellow2' : '--blue';
+      const tagBg = isDine ? '#fff4c6' : '#edf4ff';
+      const tagColor = isDine ? '#9a7200' : '#2f75d6';
+      const showBizTag = item.channel === '\u5c0f\u7a0b\u5e8f';
+      const ticket = item.orders ? item.revenue / item.orders : 0;
+      return `<div class="ch-row" style="--c:var(${colorVar});--tag-bg:${tagBg};--tag-c:${tagColor}"><span class="ch-name"><i></i><b>${escapeHtml(channelLabel(item.channel))}</b>${showBizTag ? `<em>${escapeHtml(item.biz)}</em>` : ''}</span><span class="ch-num">${formatMoney(item.revenue)}</span><span class="ch-order">${formatInt(item.orders)}\u5355</span><span class="ch-ticket">\u00a5 ${ticket.toFixed(1)}</span></div>`;
+    }).join('');
+    document.querySelector('.ch-body').innerHTML = rowHtml || '<div class="detail-empty">\u6682\u65e0\u6e20\u9053\u6570\u636e</div>';
+  };
+  const channelLabel = name => name === '\u95e8\u5e97\u5802\u98df' ? '\u5802\u98dfPOS' : name;
+  const renderChannels = () => {
+    const rows = rowsFor(keyOf(monthState.year, monthState.month));
+    const total = sum(rows, 'revenue');
+    const renderGroup = (biz, colorVar) => {
+      const groupRows = rows.filter(row => row.biz === biz);
+      const groupTotal = sum(groupRows, 'revenue');
+      const byChannel = new Map();
+      groupRows.forEach(row => byChannel.set(row.channel, (byChannel.get(row.channel) || 0) + Number(row.revenue || 0)));
+      const items = [...byChannel.entries()].sort((a, b) => b[1] - a[1]);
+      const max = Math.max(1, ...items.map(item => item[1]));
+      const rowsHtml = items.map(([channel, value]) => `<div class="row"><span>${channelLabel(channel)}</span><span class="track"><i style="--w:${Math.max(3, value / max * 100).toFixed(0)}%;--c:var(${colorVar})"></i></span><b>${total ? (value / total * 100).toFixed(1) : '0.0'}%</b></div>`).join('');
+      return `<div><h4 style="color:var(${colorVar})">${biz} ${total ? (groupTotal / total * 100).toFixed(1) : '0.0'}%</h4>${rowsHtml || '<div class="row"><span>\u6682\u65e0\u6570\u636e</span><span class="track"><i style="--w:0%;--c:var('+colorVar+')"></i></span><b>0.0%</b></div>'}</div>`;
+    };
+    document.querySelector('.channels').innerHTML = renderGroup('\u5802\u98df', '--yellow2') + renderGroup('\u5916\u9001', '--blue');
+  };
+  const productRowsFor = key => (source.products || []).filter(row => row.m === key && (!shouldExcludeGroup() || row.type === normalOrderType));
+  const productDetailPage = document.getElementById('productDetailPage');
+  const productDetailBack = document.getElementById('productDetailBack');
+  const productDetailTitle = document.getElementById('productDetailTitle');
+  const productDetailSub = document.getElementById('productDetailSub');
+  const productDetailContent = document.getElementById('productDetailContent');
+  const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+  const currentProductRows = () => productRowsFor(keyOf(monthState.year, monthState.month));
+  const productScopeText = () => `${monthState.year}\u5e74${monthState.month}\u6708 \u00b7 ${shouldExcludeGroup() ? '\u5df2\u5254\u9664\u56e2\u8ba2' : '\u542b\u56e2\u8ba2'}`;
+  const closeProductDetail = () => { productDetailPage.hidden = true; };
+  const openProductDetail = (title, html) => {
+    productDetailTitle.textContent = title;
+    productDetailSub.textContent = productScopeText();
+    productDetailContent.innerHTML = html;
+    productDetailPage.hidden = false;
+  };
+  const excludedProductTerms = ['\u670d\u52a1\u8d39', '\u73a9\u5177'];
+  const productSalesRows = rows => {
+    const byProduct = new Map();
+    rows.filter(row => !excludedProductTerms.some(term => `${row.category}${row.name}`.includes(term))).forEach(row => {
+      const key = `${row.code}|${row.name}`;
+      const current = byProduct.get(key) || { name: row.name, qty: 0, income: 0 };
+      current.qty += Number(row.qty || 0);
+      current.income += Number(row.income || 0);
+      byProduct.set(key, current);
+    });
+    return [...byProduct.values()].sort((a, b) => b.qty - a.qty);
+  };
+  const showAllProductSales = products => {
+    const html = products.map((item, index) => `<div class="detail-row"><span class="detail-name">${index + 1}. ${escapeHtml(item.name)}</span><b>${formatInt(item.qty)}\u4efd</b><b>${formatMoney(item.income)}</b></div>`).join('') || '<div class="detail-empty">\u6682\u65e0\u4ea7\u54c1\u9500\u552e\u6570\u636e</div>';
+    openProductDetail('\u5168\u90e8\u4ea7\u54c1\u9500\u552e', html);
+  };
+  const bindTop10Info = () => {
+    const top10Info = document.getElementById('top10Info');
+    const top10Note = document.getElementById('top10Note');
+    if (!top10Info || !top10Note) return;
+    const toggleTop10Note = () => {
+      const visible = top10Note.hidden;
+      top10Note.hidden = !visible;
+      top10Info.setAttribute('aria-expanded', String(visible));
+    };
+    top10Info.addEventListener('click', toggleTop10Note);
+    top10Info.addEventListener('keydown', event => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        toggleTop10Note();
+      }
+    });
+  };
+  const renderProducts = () => {
+    const topCard = document.querySelector('.bottom .card');
+    const allProducts = productSalesRows(currentProductRows());
+    const topProducts = allProducts.slice(0, 10);
+    const maxProductQty = Math.max(1, ...topProducts.map(item => item.qty));
+    const rankHtml = topProducts.map((item, index) => `<div class="rank"><span class="num ${index < 3 ? 'hot' : ''}">${index + 1}</span><div class="rank-main"><span class="rank-name" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</span><span class="rank-bar"><i style="--w:${Math.max(6, item.qty / maxProductQty * 100).toFixed(0)}%"></i></span></div><span class="cnt">${formatInt(item.qty)}\u4efd</span></div>`).join('');
+    topCard.innerHTML = `<div class="top-head"><div class="ct">\u4ea7\u54c1\u9500\u552eTOP10 <span class="info" id="top10Info" role="button" tabindex="0" aria-controls="top10Note" aria-expanded="false">?</span></div><button class="more link-btn" id="allProductSalesLink" type="button">\u66f4\u591a \u203a</button></div><div class="note-chip" id="top10Note" hidden>\u4e0d\u542b\u670d\u52a1\u8d39\u4ea7\u54c1\u3001\u73a9\u5177</div>${rankHtml || '<div class="rank"><span class="num">-</span><span>\u6682\u65e0\u6570\u636e</span><span class="cnt">0\u4efd</span></div>'}`;
+    const allProductSalesLink = document.getElementById('allProductSalesLink');
+    if (allProductSalesLink) allProductSalesLink.addEventListener('click', () => showAllProductSales(allProducts));
+    bindTop10Info();
+  };
+  productDetailBack.addEventListener('click', closeProductDetail);
+  function renderDashboard() {
+    renderSelectedTime();
+    renderMetrics();
+    renderChart();
+    renderWeek();
+    renderOwnership();
+    renderChannelDetail();
+    renderChannels();
+    renderProducts();
+  }
+  function renderMonth() {
+    selectedMonth.textContent = `${monthState.year}年${monthState.month}月`;
+    pickerYear.textContent = monthState.year;
+    document.querySelectorAll('.month-option').forEach(btn => {
+      const month = Number(btn.dataset.month);
+      const disabled = isFutureMonth(monthState.year, month);
+      btn.classList.toggle('muted', disabled);
+      btn.disabled = disabled;
+      btn.classList.toggle('on', month === monthState.month);
+    });
+    renderDashboard();
+  }
+  document.querySelectorAll('.tab').forEach(tab => tab.onclick = () => { document.querySelectorAll('.tab').forEach(item => item.classList.remove('on')); tab.classList.add('on'); });
+  document.getElementById('monthTrigger').onclick = () => { monthPicker.hidden = false; renderMonth(); };
+  document.getElementById('pickerMask').onclick = () => { monthPicker.hidden = true; };
+  document.getElementById('prevYear').onclick = () => { monthState.year -= 1; renderMonth(); };
+  document.getElementById('nextYear').onclick = () => { monthState.year += 1; renderMonth(); };
+  document.querySelectorAll('.month-option').forEach(btn => btn.onclick = () => {
+    const month = Number(btn.dataset.month);
+    if (isFutureMonth(monthState.year, month)) return;
+    monthState.month = month;
+    monthPicker.hidden = true;
+    renderMonth();
+  });
+  excludeToggle.onclick = () => {
+    const active = !excludeToggle.classList.contains('on');
+    excludeToggle.classList.toggle('on', active);
+    excludeToggle.setAttribute('aria-pressed', String(active));
+    renderDashboard();
+  };
+  renderMonth();
+})();
+</script>
+</body>
+</html>

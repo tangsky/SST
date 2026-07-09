@@ -1,0 +1,11 @@
+%SystemDrive%/
+
+# Temporary verification files
+assets/_inline-check.js
+
+# Generated image variants and chroma-key intermediates not used by index.html
+assets/*.png
+!assets/revenue-money-icon.png
+!assets/order-clipboard-icon.png
+!assets/ticket-customer-icon.png
+!assets/budget-target-icon-line-2ring.png
