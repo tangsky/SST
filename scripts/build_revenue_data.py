@@ -1,4 +1,6 @@
 import datetime
+import hashlib
+import math
 import json
 import re
 import zipfile
@@ -74,17 +76,57 @@ def read_xlsx(path):
         return sheets
 
 
-def excel_date(value):
-    return datetime.date(1899, 12, 30) + datetime.timedelta(days=int(float(value)))
+def excel_date(value, sheet, row_number):
+    try:
+        serial = float(value)
+    except (TypeError, ValueError):
+        raise SystemExit(f"{sheet} row {row_number}: 日期不是有效的 Excel 日期值: {value!r}")
+    if not math.isfinite(serial):
+        raise SystemExit(f"{sheet} row {row_number}: 日期不是有限数值")
+    result = datetime.date(1899, 12, 30) + datetime.timedelta(days=int(serial))
+    if not 2000 <= result.year <= 2100:
+        raise SystemExit(f"{sheet} row {row_number}: 日期超出支持范围: {result}")
+    return result
 
 
-def to_float(value):
-    return float(value or 0)
+def _number(value, sheet, row_number, field):
+    if value is None or str(value).strip() == "":
+        return 0.0
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        raise SystemExit(f"{sheet} row {row_number}: {field} 不是有效数字: {value!r}")
+    if not math.isfinite(number):
+        raise SystemExit(f"{sheet} row {row_number}: {field} 不是有限数值")
+    return number
 
 
-def to_int(value):
-    return int(round(float(value or 0)))
+def to_float(value, sheet, row_number, field):
+    return _number(value, sheet, row_number, field)
 
+
+def to_int(value, sheet, row_number, field):
+    number = _number(value, sheet, row_number, field)
+    if number < 0:
+        raise SystemExit(f"{sheet} row {row_number}: {field} 不能为负数")
+    return int(round(number))
+
+
+def parse_month_key(value, default_year, sheet, row_number):
+    nums = [int(item) for item in re.findall(r"\d+", str(value))]
+    if not nums:
+        raise SystemExit(f"{sheet} row {row_number}: 月份不是有效值: {value!r}")
+    if len(nums) >= 2 and 1900 <= nums[0] <= 2100:
+        year, month = nums[0], nums[1]
+    elif 100000 <= nums[0] <= 999999:
+        year, month = nums[0] // 100, nums[0] % 100
+    elif 1 <= nums[0] <= 12:
+        year, month = default_year, nums[0]
+    else:
+        raise SystemExit(f"{sheet} row {row_number}: 月份超出支持范围: {value!r}")
+    if not 1 <= month <= 12:
+        raise SystemExit(f"{sheet} row {row_number}: 月份超出 1-12 范围: {value!r}")
+    return year * 100 + month
 
 def build_payload(path):
     sheets = read_xlsx(path)
@@ -93,63 +135,68 @@ def build_payload(path):
         raise SystemExit(f"Missing required sheet(s): {sorted(missing)}")
 
     records = []
-    for row in sheets["revenue"][1:]:
-        row += [""] * 9
-        if not row[0]:
+    for row_number, raw_row in enumerate(sheets["revenue"][1:], start=2):
+        row = list(raw_row) + [""] * 9
+        if not str(row[0]).strip():
             continue
+        date = excel_date(row[0], "revenue", row_number)
+        month = to_int(row[1], "revenue", row_number, "月份")
+        expected_month = date.year * 100 + date.month
+        if month != expected_month:
+            raise SystemExit(f"revenue row {row_number}: 月份 {month} 与日期 {date} 不一致")
         records.append(
             {
-                "d": str(excel_date(row[0])),
-                "m": int(float(row[1])),
-                "storeCode": row[2],
-                "storeName": row[3],
-                "biz": row[4],
-                "channel": row[5],
-                "type": row[6],
-                "orders": to_int(row[7]),
-                "revenue": round(to_float(row[8]), 2),
+                "d": str(date),
+                "m": month,
+                "storeCode": str(row[2]).strip(),
+                "storeName": str(row[3]).strip(),
+                "biz": str(row[4]).strip(),
+                "channel": str(row[5]).strip(),
+                "type": str(row[6]).strip(),
+                "orders": to_int(row[7], "revenue", row_number, "订单数"),
+                "revenue": round(to_float(row[8], "revenue", row_number, "营收"), 2),
             }
         )
 
+    default_year = max((int(item["d"][:4]) for item in records), default=datetime.date.today().year)
     budgets = {}
-    for row in sheets["budget"][1:]:
-        row += [""] * 3
-        if not row[1]:
+    for row_number, raw_row in enumerate(sheets["budget"][1:], start=2):
+        row = list(raw_row) + [""] * 3
+        if not str(row[1]).strip():
             continue
-        nums = re.findall(r"\d+", str(row[1]))
-        if not nums:
-            continue
-        key = int(nums[0])
-        if key < 100000:
-            key = 202600 + key
-        budgets[str(key)] = round(to_float(row[2]), 2)
+        key = parse_month_key(row[1], default_year, "budget", row_number)
+        budgets[str(key)] = round(to_float(row[2], "budget", row_number, "月预算"), 2)
 
     products = []
-    for row in sheets["product"][1:]:
-        row += [""] * 9
-        if not row[0]:
+    for row_number, raw_row in enumerate(sheets["product"][1:], start=2):
+        row = list(raw_row) + [""] * 9
+        if not str(row[0]).strip():
             continue
-        date = excel_date(row[0])
+        date = excel_date(row[0], "product", row_number)
         products.append(
             {
                 "d": str(date),
                 "m": date.year * 100 + date.month,
-                "storeCode": row[1],
-                "storeName": row[2],
-                "type": row[3],
-                "code": row[4],
-                "name": row[5],
-                "category": row[6] or "未分类",
-                "qty": to_int(row[7]),
-                "income": round(to_float(row[8]), 2),
+                "storeCode": str(row[1]).strip(),
+                "storeName": str(row[2]).strip(),
+                "type": str(row[3]).strip(),
+                "code": str(row[4]).strip(),
+                "name": str(row[5]).strip(),
+                "category": str(row[6]).strip() or "未分类",
+                "qty": to_int(row[7], "product", row_number, "销量"),
+                "income": round(to_float(row[8], "product", row_number, "收入"), 2),
             }
         )
 
-    type_counts = Counter(item["type"] for item in records)
+    type_counts = Counter(item["type"] for item in records if item["type"])
     normal = type_counts.most_common(1)[0][0] if type_counts else "常规订单"
+    months = sorted({item["m"] for item in records})
+    max_date = max((item["d"] for item in records), default=None)
     return {
         "sourceFile": str(path.relative_to(ROOT)).replace("\\", "/"),
         "normalOrderType": normal,
+        "availableMonths": months,
+        "maxDataDate": max_date,
         "records": records,
         "budgets": budgets,
         "products": products,
@@ -163,8 +210,20 @@ def main():
         "window.SST_REVENUE_DATA = " + json.dumps(payload, ensure_ascii=False, separators=(",", ":")) + ";\n",
         encoding="utf-8",
     )
-    months = sorted({item["m"] for item in payload["records"]})
-    product_months = sorted({item["m"] for item in payload["products"]})
+    version = hashlib.sha1(OUT.read_bytes()).hexdigest()[:12]
+    index_path = ROOT / "index.html"
+    index_text = index_path.read_text(encoding="utf-8")
+    updated_index, replacements = re.subn(
+        r'(assets/revenue-data\.js\?v=)[^"\']+',
+        rf"\g<1>{version}",
+        index_text,
+        count=1,
+    )
+    if replacements != 1:
+        raise SystemExit("Could not find the revenue-data.js cache version in index.html")
+    if updated_index != index_text:
+        index_path.write_text(updated_index, encoding="utf-8")
+    months = payload["availableMonths"]
     print(
         json.dumps(
             {
@@ -173,8 +232,9 @@ def main():
                 "records": len(payload["records"]),
                 "products": len(payload["products"]),
                 "months": months,
-                "productMonths": product_months,
+                "maxDataDate": payload["maxDataDate"],
                 "normalOrderType": payload["normalOrderType"],
+                "cacheVersion": version,
             },
             ensure_ascii=False,
             indent=2,
