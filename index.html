@@ -52,7 +52,8 @@
   const maxDataDate = records.reduce((max, row) => !max || row.d > max ? row.d : max, '');
   const maxDateParts = (maxDataDate || new Date().toISOString().slice(0, 10)).split('-').map(Number);
   const currentLimit = { year: maxDateParts[0], month: maxDateParts[1] };
-  const monthState = { year: maxDateParts[0], month: maxDateParts[1] };
+  const demoDefault = records.some(row => row.m === 202606) ? { year: 2026, month: 6 } : { year: maxDateParts[0], month: maxDateParts[1] };
+  const monthState = { ...demoDefault };
   const selectedMonth = document.getElementById('selectedMonth');
   const selectedTime = document.getElementById('selectedTime');
   const monthPicker = document.getElementById('monthPicker');
@@ -163,7 +164,7 @@
     const budgetGap = cur.revenue - cur.budget;
     const requiredDaily = remainingDays && budgetGap < 0 ? Math.abs(budgetGap) / remainingDays : 0;
     const requiredDailyText = budgetGap >= 0 ? '已达成' : (remainingDays ? formatMoney(requiredDaily) : '未达成');
-    const budgetGrowth = prev.budget ? cur.completion - prev.completion : null;
+    const budgetGrowth = prev.budget && prev.rows.length ? cur.completion - prev.completion : null;
     const budgetGrowthText = budgetGrowth === null ? '--' : `${budgetGrowth >= 0 ? '+' : ''}${budgetGrowth.toFixed(1)}% ${budgetGrowth >= 0 ? '↑' : '↓'}`;
     const budgetGrowthClass = budgetGrowth !== null && budgetGrowth < 0 ? 'down' : '';
     opsSummary.innerHTML = [
