@@ -9,6 +9,8 @@ assets/*.png
 !assets/order-clipboard-icon.png
 !assets/ticket-customer-icon.png
 !assets/budget-target-icon-line-2ring.png
+!assets/business-delivery-icon.png
+!assets/business-dine-icon.png
 # Local generated/cache files
 __pycache__/
 scripts/__pycache__/
