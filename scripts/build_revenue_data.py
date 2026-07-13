@@ -112,6 +112,11 @@ def to_int(value, sheet, row_number, field):
     return int(round(number))
 
 
+def to_signed_int(value, sheet, row_number, field):
+    number = _number(value, sheet, row_number, field)
+    return int(round(number))
+
+
 def parse_month_key(value, default_year, sheet, row_number):
     nums = [int(item) for item in re.findall(r"\d+", str(value))]
     if not nums:
@@ -183,7 +188,7 @@ def build_payload(path):
                 "code": str(row[4]).strip(),
                 "name": str(row[5]).strip(),
                 "category": str(row[6]).strip() or "未分类",
-                "qty": to_int(row[7], "product", row_number, "销量"),
+                "qty": to_signed_int(row[7], "product", row_number, "销量"),
                 "income": round(to_float(row[8], "product", row_number, "收入"), 2),
             }
         )
@@ -211,18 +216,19 @@ def main():
         encoding="utf-8",
     )
     version = hashlib.sha1(OUT.read_bytes()).hexdigest()[:12]
-    index_path = ROOT / "index.html"
-    index_text = index_path.read_text(encoding="utf-8")
-    updated_index, replacements = re.subn(
-        r'(assets/revenue-data\.js\?v=)[^"\']+',
-        rf"\g<1>{version}",
-        index_text,
-        count=1,
-    )
-    if replacements != 1:
-        raise SystemExit("Could not find the revenue-data.js cache version in index.html")
-    if updated_index != index_text:
-        index_path.write_text(updated_index, encoding="utf-8")
+    for page_name in ("index.html", "monthly.html"):
+        page_path = ROOT / page_name
+        page_text = page_path.read_text(encoding="utf-8")
+        updated_page, replacements = re.subn(
+            r'(assets/revenue-data\.js\?v=)[^"\']+',
+            rf"\g<1>{version}",
+            page_text,
+            count=1,
+        )
+        if replacements != 1:
+            raise SystemExit(f"Could not find the revenue-data.js cache version in {page_name}")
+        if updated_page != page_text:
+            page_path.write_text(updated_page, encoding="utf-8")
     months = payload["availableMonths"]
     print(
         json.dumps(
