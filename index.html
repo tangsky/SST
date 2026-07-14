@@ -391,7 +391,7 @@
     });
     return [...byProduct.values()].map(item => ({ ...item, unitPrice: item.qty ? item.income / item.qty : 0 })).sort((a, b) => b.qty - a.qty);
   };
-  const showAllProductSales = products => { const rows = products.map((item, index) => `<div class="detail-row detail-product"><span class="detail-name">${index + 1}. ${escapeHtml(item.name)}</span><b>${formatInt(item.qty)}\u4efd</b><b>${formatMoney(item.income)}</b><b>\u00a5${item.unitPrice.toFixed(1)}</b></div>`).join(''); openProductDetail('\u5168\u90e8\u4ea7\u54c1\u9500\u552e', rows ? `<div class="detail-row detail-product detail-head"><span>\u5355\u54c1</span><span>\u9500\u91cf</span><span>\u6536\u5165</span><span>\u5747\u4ef7</span></div>${rows}` : '<div class="detail-empty">\u6682\u65e0\u4ea7\u54c1\u9500\u552e\u6570\u636e</div>'); };
+  const showAllProductSales = products => { const rows = products.map((item, index) => `<div class="detail-row detail-product"><span class="detail-name">${index + 1}. ${escapeHtml(item.name)}</span><b>${formatInt(item.qty)}</b><b>${formatMoney(item.income)}</b><b>\u00a5${item.unitPrice.toFixed(1)}</b></div>`).join(''); openProductDetail('\u5168\u90e8\u4ea7\u54c1\u9500\u552e', rows ? `<div class="detail-row detail-product detail-head"><span>\u5355\u54c1</span><span>\u9500\u91cf</span><span>\u6536\u5165</span><span>\u5747\u4ef7</span></div>${rows}` : '<div class="detail-empty">\u6682\u65e0\u4ea7\u54c1\u9500\u552e\u6570\u636e</div>'); };
   const bindTop10Info = () => {
     const top10Info = document.getElementById('top10Info');
     const top10Note = document.getElementById('top10Note');
