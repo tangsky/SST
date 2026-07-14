@@ -89,6 +89,28 @@ def excel_date(value, sheet, row_number):
     return result
 
 
+def excel_time(value, sheet, row_number):
+    if value is None or str(value).strip() == "":
+        return "00:00", 0
+    try:
+        raw = float(value)
+    except (TypeError, ValueError):
+        text = str(value).strip()
+        match = re.search(r"(\d{1,2}):(\d{2})", text)
+        if not match:
+            raise SystemExit(f"{sheet} row {row_number}: invalid half-hour time: {value!r}")
+        hour, minute = int(match.group(1)), int(match.group(2))
+    else:
+        if raw >= 1:
+            raw = raw % 1
+        minutes = int(round(raw * 24 * 60)) % (24 * 60)
+        hour, minute = divmod(minutes, 60)
+    if not (0 <= hour <= 23 and 0 <= minute <= 59):
+        raise SystemExit(f"{sheet} row {row_number}: half-hour out of 00:00-23:59 range: {value!r}")
+    slot = hour * 60 + minute
+    return f"{hour:02d}:{minute:02d}", slot
+
+
 def _number(value, sheet, row_number, field):
     if value is None or str(value).strip() == "":
         return 0.0
@@ -193,6 +215,53 @@ def build_payload(path):
             }
         )
 
+    daily_records = []
+    for row_number, raw_row in enumerate(sheets.get("daily_revenue", [])[1:], start=2):
+        row = list(raw_row) + [""] * 9
+        if not str(row[0]).strip():
+            continue
+        date = excel_date(row[0], "daily_revenue", row_number)
+        time_label, slot = excel_time(row[1], "daily_revenue", row_number)
+        daily_records.append(
+            {
+                "d": str(date),
+                "m": date.year * 100 + date.month,
+                "time": time_label,
+                "slot": slot,
+                "period": str(row[2]).strip(),
+                "storeCode": str(row[3]).strip(),
+                "storeName": str(row[4]).strip(),
+                "biz": str(row[5]).strip(),
+                "channel": str(row[6]).strip(),
+                "orders": to_int(row[7], "daily_revenue", row_number, "orders"),
+                "revenue": round(to_float(row[8], "daily_revenue", row_number, "revenue"), 2),
+            }
+        )
+
+    daily_products = []
+    for row_number, raw_row in enumerate(sheets.get("daily_product", [])[1:], start=2):
+        row = list(raw_row) + [""] * 10
+        if not str(row[0]).strip():
+            continue
+        date = excel_date(row[0], "daily_product", row_number)
+        time_label, slot = excel_time(row[3], "daily_product", row_number)
+        daily_products.append(
+            {
+                "d": str(date),
+                "m": date.year * 100 + date.month,
+                "storeCode": str(row[1]).strip(),
+                "storeName": str(row[2]).strip(),
+                "time": time_label,
+                "slot": slot,
+                "period": str(row[4]).strip(),
+                "code": str(row[5]).strip(),
+                "name": str(row[6]).strip(),
+                "category": str(row[7]).strip() or "orders",
+                "qty": to_signed_int(row[8], "daily_product", row_number, "orders"),
+                "income": round(to_float(row[9], "daily_product", row_number, "revenue"), 2),
+            }
+        )
+
     type_counts = Counter(item["type"] for item in records if item["type"])
     normal = type_counts.most_common(1)[0][0] if type_counts else "常规订单"
     months = sorted({item["m"] for item in records})
@@ -205,6 +274,10 @@ def build_payload(path):
         "records": records,
         "budgets": budgets,
         "products": products,
+        "availableDailyDates": sorted({item["d"] for item in daily_records}),
+        "maxDailyDate": max((item["d"] for item in daily_records), default=None),
+        "dailyRecords": daily_records,
+        "dailyProducts": daily_products,
     }
 
 
@@ -216,7 +289,7 @@ def main():
         encoding="utf-8",
     )
     version = hashlib.sha1(OUT.read_bytes()).hexdigest()[:12]
-    for page_name in ("index.html", "monthly.html"):
+    for page_name in ("index.html", "monthly.html", "custom.html", "daily.html"):
         page_path = ROOT / page_name
         page_text = page_path.read_text(encoding="utf-8")
         updated_page, replacements = re.subn(
@@ -237,6 +310,9 @@ def main():
                 "output": str(OUT.relative_to(ROOT)),
                 "records": len(payload["records"]),
                 "products": len(payload["products"]),
+                "dailyRecords": len(payload["dailyRecords"]),
+                "dailyProducts": len(payload["dailyProducts"]),
+                "dailyDates": payload["availableDailyDates"],
                 "months": months,
                 "maxDataDate": payload["maxDataDate"],
                 "normalOrderType": payload["normalOrderType"],
