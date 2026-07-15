@@ -289,7 +289,7 @@ def main():
         encoding="utf-8",
     )
     version = hashlib.sha1(OUT.read_bytes()).hexdigest()[:12]
-    for page_name in ("index.html", "monthly.html", "custom.html", "daily.html"):
+    for page_name in ("annual.html", "monthly.html", "custom.html", "daily.html"):
         page_path = ROOT / page_name
         page_text = page_path.read_text(encoding="utf-8")
         updated_page, replacements = re.subn(
