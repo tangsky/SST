@@ -5,6 +5,7 @@ assets/_inline-check.js
 
 # Generated image variants and chroma-key intermediates not used by index.html
 assets/*.png
+!assets/store-image-*.png
 !assets/revenue-money-icon.png
 !assets/order-clipboard-icon.png
 !assets/ticket-customer-icon.png
