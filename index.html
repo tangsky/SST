@@ -3,11 +3,104 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>经营信息高保真示例</title>
-  <meta http-equiv="refresh" content="0; url=home.html">
-  <script>window.location.replace('home.html');</script>
+  <title>SST 原型演示入口</title>
+  <link rel="icon" href="data:,">
+  <style>
+    :root{
+      --bg:#f3f5f7;
+      --surface:#fff;
+      --ink:#171717;
+      --muted:#667085;
+      --line:#dfe4ea;
+      --yellow:#ffd600;
+      --yellow-deep:#c39000;
+      --blue:#2f7df0;
+      --green:#168a45;
+      --shadow:0 18px 45px rgba(17,24,39,.12);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Arial,sans-serif}
+    body:before{content:"";position:fixed;inset:0;background:linear-gradient(180deg,rgba(255,214,0,.18),rgba(47,125,240,.10) 46%,rgba(243,245,247,.92)),url("assets/home-map.jpg") center top/cover no-repeat;opacity:.95;pointer-events:none}
+    a{color:inherit;text-decoration:none}
+    .page{position:relative;z-index:1;min-height:100dvh;display:grid;align-items:center;padding:32px}
+    .shell{width:min(1120px,100%);margin:0 auto;display:grid;grid-template-columns:minmax(280px,.85fr) minmax(0,1.15fr);gap:26px;align-items:stretch}
+    .intro{padding:30px;border:1px solid rgba(255,255,255,.72);border-radius:8px;background:rgba(255,255,255,.86);box-shadow:var(--shadow);backdrop-filter:blur(10px)}
+    .eyebrow{margin:0 0 10px;color:#8a6800;font-size:13px;font-weight:700;letter-spacing:.04em}
+    h1{margin:0;font-size:36px;line-height:1.14;letter-spacing:0}
+    .intro p{margin:14px 0 0;color:var(--muted);font-size:15px;line-height:1.7}
+    .quick{display:grid;gap:9px;margin-top:24px;color:#344054;font-size:13px}
+    .quick span{display:flex;gap:8px;align-items:flex-start}
+    .quick b{flex:0 0 auto;color:#111}
+    .choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+    .choice{display:grid;grid-template-rows:auto 1fr auto;min-height:520px;border:1px solid var(--line);border-radius:8px;background:var(--surface);box-shadow:var(--shadow);overflow:hidden}
+    .choice-head{padding:18px 18px 12px;border-bottom:1px solid #eef1f5}
+    .choice-label{display:inline-flex;align-items:center;min-height:24px;padding:0 8px;border-radius:999px;background:#fff6c7;color:#755900;font-size:12px;font-weight:700}
+    .choice h2{margin:11px 0 0;font-size:22px;line-height:1.25}
+    .choice p{margin:8px 0 0;color:var(--muted);font-size:13px;line-height:1.6}
+    .preview{display:grid;place-items:center;min-height:330px;padding:18px;background:linear-gradient(180deg,#f8fafc,#eef2f6)}
+    .phone{position:relative;width:180px;aspect-ratio:390/844;border:8px solid #1f2937;border-radius:28px;background:#1f2937;box-shadow:0 16px 34px rgba(17,24,39,.22);overflow:hidden}
+    .browser{position:relative;width:min(100%,310px);height:245px;border:1px solid #cfd7e2;border-radius:8px;background:#fff;box-shadow:0 16px 34px rgba(17,24,39,.14);overflow:hidden}
+    .browser:before{content:"";display:block;height:28px;border-bottom:1px solid #e5eaf0;background:linear-gradient(90deg,#f87171 0 9px,transparent 9px 15px,#fbbf24 15px 24px,transparent 24px 30px,#34d399 30px 39px,transparent 39px),#f8fafc;background-position:12px center;background-repeat:no-repeat}
+    iframe{display:block;width:100%;height:100%;border:0;background:#d9d9d9;pointer-events:none}
+    .phone iframe{position:absolute;inset:0;height:100%}
+    .choice-actions{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:15px 18px;border-top:1px solid #eef1f5;background:#fff}
+    .primary-link{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 14px;border-radius:8px;background:var(--yellow);color:#111;font-size:14px;font-weight:800}
+    .secondary-link{color:#475467;font-size:12px;font-weight:700;text-decoration:underline;text-underline-offset:3px}
+    .choice.demo .choice-label{background:#fff6c7;color:#755900}
+    .choice.guide .choice-label{background:#eaf3ff;color:#175cd3}
+    .choice.guide .primary-link{background:var(--blue);color:#fff}
+    .footnote{position:relative;z-index:1;width:min(1120px,100%);margin:18px auto 0;color:#475467;font-size:12px;text-align:center}
+    @media(max-width:920px){.page{align-items:start;padding:20px}.shell{grid-template-columns:1fr}.choices{grid-template-columns:1fr}.choice{min-height:auto}h1{font-size:30px}.intro{padding:22px}.preview{min-height:290px}.browser{height:230px}}
+    @media(max-width:420px){.page{padding:14px}.intro{padding:18px}.choice-head,.choice-actions{padding-left:14px;padding-right:14px}.choice-actions{display:grid}.primary-link{width:100%}.phone{width:162px}.browser{height:210px}}
+  </style>
 </head>
 <body>
-  <p>正在打开门店首页... <a href="home.html">点击进入</a></p>
+  <main class="page">
+    <div class="shell">
+      <section class="intro" aria-labelledby="pageTitle">
+        <p class="eyebrow">GitHub Pages 分享入口</p>
+        <h1 id="pageTitle">SST 门店经营原型</h1>
+        <p>把这个根链接发给同事即可：既能直接查看小程序页面展示，也能进入开发用的原型说明页。所有页面使用相对路径，适合本地预览和 GitHub Pages 部署。</p>
+        <div class="quick" aria-label="交付说明">
+          <span><b>Demo</b> 手机端高保真页面，适合业务和产品看效果。</span>
+          <span><b>说明</b> 带连线和锚点的开发说明，适合研发理解页面结构、交互和数据口径。</span>
+          <span><b>部署</b> GitHub Pages 选择 main / root 后，根路径会打开此入口页。</span>
+        </div>
+      </section>
+
+      <section class="choices" aria-label="选择查看内容">
+        <article class="choice demo">
+          <div class="choice-head">
+            <span class="choice-label">小程序页面展示</span>
+            <h2>查看经营 Demo</h2>
+            <p>从门店首页进入，包含门店信息、营收信息、档案页和经营报表链路。</p>
+          </div>
+          <div class="preview" aria-hidden="true">
+            <div class="phone"><iframe src="home.html" title="门店经营 Demo 预览" tabindex="-1"></iframe></div>
+          </div>
+          <div class="choice-actions">
+            <a class="primary-link" href="home.html">进入 Demo</a>
+            <a class="secondary-link" href="daily.html">直接看经营信息</a>
+          </div>
+        </article>
+
+        <article class="choice guide">
+          <div class="choice-head">
+            <span class="choice-label">原型说明</span>
+            <h2>查看开发说明页</h2>
+            <p>用页面预览、编号锚点、连线说明业务意图、交互规则、数据字段和验收点。</p>
+          </div>
+          <div class="preview" aria-hidden="true">
+            <div class="browser"><iframe src="prototype-guide.html" title="原型说明页预览" tabindex="-1"></iframe></div>
+          </div>
+          <div class="choice-actions">
+            <a class="primary-link" href="prototype-guide.html">进入原型说明</a>
+            <a class="secondary-link" href="store-detail.html">查看门店档案</a>
+          </div>
+        </article>
+      </section>
+    </div>
+    <p class="footnote">注：当前 demo 数据和门店信息均为脱敏演示内容，正式分享前请确认仓库和 GitHub Pages 可见性。</p>
+  </main>
 </body>
 </html>

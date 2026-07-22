@@ -1,0 +1,702 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SST 原型说明页</title>
+  <link rel="icon" href="data:,">
+  <style>
+    :root{
+      --bg:#f4f5f7;
+      --surface:#ffffff;
+      --ink:#172033;
+      --muted:#667085;
+      --line:#dfe4ea;
+      --brand:#ffd600;
+      --brand-deep:#a27b00;
+      --blue:#2563eb;
+      --green:#168a45;
+      --red:#c2410c;
+      --soft-blue:#eff6ff;
+      --soft-green:#ecfdf3;
+      --soft-yellow:#fff8d4;
+      --shadow:0 18px 45px rgba(22,32,51,.08);
+      --radius:8px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--ink);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Arial,sans-serif;
+      line-height:1.55;
+      font-variant-numeric:tabular-nums;
+    }
+    a{color:inherit}
+    .page-shell{max-width:1440px;margin:0 auto;padding:28px 28px 64px}
+    .hero{
+      display:grid;
+      grid-template-columns:minmax(0,1.15fr) minmax(300px,.85fr);
+      gap:24px;
+      align-items:end;
+      padding:28px;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:linear-gradient(135deg,#fff 0%,#fffbed 58%,#eef6ff 100%);
+      box-shadow:var(--shadow);
+    }
+    .eyebrow{margin:0 0 8px;color:var(--brand-deep);font-size:13px;font-weight:700;letter-spacing:.04em}
+    h1{margin:0;font-size:34px;line-height:1.18;letter-spacing:0}
+    .hero p{max-width:780px;margin:14px 0 0;color:var(--muted);font-size:15px}
+    .meta-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .meta{
+      min-height:82px;
+      padding:14px;
+      border:1px solid rgba(162,123,0,.18);
+      border-radius:var(--radius);
+      background:rgba(255,255,255,.76);
+    }
+    .meta span{display:block;color:var(--muted);font-size:12px}
+    .meta strong{display:block;margin-top:6px;font-size:18px}
+    .toc{
+      position:sticky;
+      top:0;
+      z-index:30;
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin:18px 0 20px;
+      padding:10px;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:rgba(255,255,255,.94);
+      backdrop-filter:blur(10px);
+      box-shadow:0 10px 30px rgba(22,32,51,.06);
+    }
+    .toc a{
+      display:inline-flex;
+      align-items:center;
+      min-height:34px;
+      padding:0 12px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:#fff;
+      color:#344054;
+      font-size:13px;
+      font-weight:700;
+      text-decoration:none;
+      white-space:nowrap;
+    }
+    .toc a:hover{border-color:#b7c2ce;background:#f9fafb}
+    .flow{
+      margin-top:22px;
+      padding:22px;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:var(--surface);
+      box-shadow:var(--shadow);
+    }
+    .section-head{display:flex;justify-content:space-between;gap:18px;align-items:flex-end;margin-bottom:16px}
+    .section-head h2{margin:0;font-size:22px;line-height:1.25}
+    .section-head p{max-width:680px;margin:6px 0 0;color:var(--muted);font-size:14px}
+    .flow-map{
+      display:grid;
+      grid-template-columns:1.2fr .9fr .9fr .9fr .9fr .9fr;
+      gap:10px;
+      align-items:stretch;
+    }
+    .flow-node{
+      position:relative;
+      min-height:118px;
+      padding:14px;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:#fff;
+    }
+    .flow-node.primary{border-color:#f2ca20;background:var(--soft-yellow)}
+    .flow-node small{display:block;color:var(--muted);font-size:12px}
+    .flow-node strong{display:block;margin-top:6px;font-size:15px}
+    .flow-node code{display:inline-block;max-width:100%;margin-top:8px;color:#475467;font-size:12px;white-space:normal;overflow-wrap:anywhere}
+    .flow-node:after{
+      content:"";
+      position:absolute;
+      right:-12px;
+      top:50%;
+      width:14px;
+      height:2px;
+      background:#b8c2cc;
+    }
+    .flow-node:last-child:after{display:none}
+    .legend-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;color:#475467;font-size:12px}
+    .legend-row span{display:inline-flex;align-items:center;gap:6px}
+    .dot{width:10px;height:10px;border-radius:50%;background:var(--blue)}
+    .dot.biz{background:var(--brand)}
+    .dot.dev{background:var(--green)}
+    .dot.warn{background:var(--red)}
+    .guide-section{
+      margin-top:28px;
+      padding:24px;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:var(--surface);
+      box-shadow:var(--shadow);
+    }
+    .guide-title{
+      display:flex;
+      justify-content:space-between;
+      gap:16px;
+      align-items:flex-start;
+      margin-bottom:18px;
+    }
+    .guide-title h2{margin:0;font-size:24px;line-height:1.25}
+    .guide-title p{max-width:760px;margin:7px 0 0;color:var(--muted);font-size:14px}
+    .open-link{
+      flex:0 0 auto;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:38px;
+      padding:0 13px;
+      border:1px solid #b7c2ce;
+      border-radius:var(--radius);
+      background:#fff;
+      color:#1d2939;
+      font-size:13px;
+      font-weight:700;
+      text-decoration:none;
+    }
+    .annotation-scene{
+      position:relative;
+      display:grid;
+      grid-template-columns:430px minmax(380px,1fr);
+      gap:34px;
+      align-items:start;
+      min-height:620px;
+    }
+    .connector-svg{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      overflow:visible;
+      pointer-events:none;
+      z-index:1;
+    }
+    .connector-svg path{
+      fill:none;
+      stroke:#9aa7b4;
+      stroke-width:1.4;
+      stroke-dasharray:5 6;
+    }
+    .connector-svg circle{fill:#9aa7b4}
+    .phone-wrap{position:relative;z-index:2;width:430px;max-width:100%}
+    .phone-label{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      margin-bottom:10px;
+      color:#475467;
+      font-size:12px;
+      font-weight:700;
+    }
+    .phone-frame{
+      position:relative;
+      width:390px;
+      max-width:100%;
+      aspect-ratio:390/844;
+      margin:0 auto;
+      border:10px solid #1f2937;
+      border-radius:34px;
+      background:#1f2937;
+      box-shadow:0 20px 50px rgba(22,32,51,.18);
+      overflow:hidden;
+    }
+    .phone-frame:before{
+      content:"";
+      position:absolute;
+      left:50%;
+      top:7px;
+      width:92px;
+      height:22px;
+      transform:translateX(-50%);
+      border-radius:0 0 14px 14px;
+      background:#1f2937;
+      z-index:4;
+    }
+    .phone-frame iframe{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      border:0;
+      background:#d9d9d9;
+    }
+    .hotspot{
+      position:absolute;
+      left:var(--x);
+      top:var(--y);
+      z-index:6;
+      display:grid;
+      place-items:center;
+      width:30px;
+      height:30px;
+      transform:translate(-50%,-50%);
+      border:2px solid #fff;
+      border-radius:999px;
+      background:var(--blue);
+      color:#fff;
+      font-size:12px;
+      font-weight:800;
+      box-shadow:0 6px 16px rgba(37,99,235,.35);
+      pointer-events:none;
+    }
+    .hotspot.biz{background:#c58a00;box-shadow:0 6px 16px rgba(197,138,0,.32)}
+    .hotspot.dev{background:var(--green);box-shadow:0 6px 16px rgba(22,138,69,.32)}
+    .hotspot.warn{background:var(--red);box-shadow:0 6px 16px rgba(194,65,12,.32)}
+    .notes{
+      position:relative;
+      z-index:2;
+      display:grid;
+      gap:12px;
+    }
+    .note{
+      position:relative;
+      padding:14px 15px 14px 50px;
+      border:1px solid var(--line);
+      border-left:5px solid var(--blue);
+      border-radius:var(--radius);
+      background:#fff;
+    }
+    .note.biz{border-left-color:#c58a00;background:linear-gradient(90deg,#fffdf4,#fff)}
+    .note.dev{border-left-color:var(--green);background:linear-gradient(90deg,#f5fffa,#fff)}
+    .note.warn{border-left-color:var(--red);background:linear-gradient(90deg,#fff7ed,#fff)}
+    .note-num{
+      position:absolute;
+      left:14px;
+      top:14px;
+      display:grid;
+      place-items:center;
+      width:24px;
+      height:24px;
+      border-radius:999px;
+      background:#eef2f6;
+      color:#344054;
+      font-size:12px;
+      font-weight:800;
+    }
+    .note h3{margin:0;font-size:16px;line-height:1.3}
+    .note p{margin:6px 0 0;color:#475467;font-size:13px}
+    .note dl{
+      display:grid;
+      grid-template-columns:76px minmax(0,1fr);
+      gap:5px 10px;
+      margin:10px 0 0;
+      font-size:12px;
+    }
+    .note dt{color:#667085;font-weight:700}
+    .note dd{margin:0;color:#1d2939}
+    .note code{
+      padding:1px 5px;
+      border-radius:5px;
+      background:#f2f4f7;
+      color:#344054;
+      font-size:12px;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+    .data-contract{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:10px;
+      margin-top:18px;
+    }
+    .contract-item{
+      padding:13px;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:#fff;
+    }
+    .contract-item strong{display:block;font-size:13px}
+    .contract-item span{display:block;margin-top:5px;color:var(--muted);font-size:12px}
+    .acceptance{
+      margin-top:28px;
+      padding:24px;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:#fff;
+      box-shadow:var(--shadow);
+    }
+    .acceptance h2{margin:0 0 12px;font-size:22px}
+    .check-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+    .check{
+      padding:13px 14px;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:#fff;
+      color:#344054;
+      font-size:13px;
+    }
+    .check strong{display:block;margin-bottom:4px;color:#172033}
+    @media(max-width:1160px){
+      .hero{grid-template-columns:1fr}
+      .flow-map{grid-template-columns:repeat(3,minmax(0,1fr))}
+      .flow-node:after{display:none}
+      .annotation-scene{grid-template-columns:1fr;gap:20px}
+      .phone-wrap{width:100%}
+      .connector-svg{display:none}
+      .notes{grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+    @media(max-width:760px){
+      .page-shell{padding:16px 14px 40px}
+      .hero,.flow,.guide-section,.acceptance{padding:18px}
+      h1{font-size:27px}
+      .meta-grid,.data-contract,.check-grid,.notes,.flow-map{grid-template-columns:1fr}
+      .guide-title,.section-head{display:block}
+      .open-link{margin-top:12px}
+      .phone-frame{width:min(100%,390px)}
+    }
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+    <section class="hero" id="top">
+      <div>
+        <p class="eyebrow">SST 门店经营 Demo · 开发交付说明</p>
+        <h1>把原型界面、业务意图和开发落地点连接到同一张说明看板</h1>
+        <p>本页不替代现有 demo，而是作为开发阅读入口：左侧是真实页面预览，编号锚点对应右侧说明卡，连线表示界面区域与开发说明之间的关系。</p>
+      </div>
+      <div class="meta-grid">
+        <div class="meta"><span>交付形式</span><strong>独立 HTML</strong></div>
+        <div class="meta"><span>覆盖页面</span><strong>6 个核心页</strong></div>
+        <div class="meta"><span>说明维度</span><strong>业务 + 开发</strong></div>
+        <div class="meta"><span>数据来源</span><strong>revenue-data.js</strong></div>
+      </div>
+    </section>
+
+    <nav class="toc" aria-label="原型说明目录">
+      <a href="#flow">整体流程</a>
+      <a href="#home-store">首页门店</a>
+      <a href="#home-revenue">首页营收</a>
+      <a href="#store-detail">门店档案</a>
+      <a href="#daily">当日</a>
+      <a href="#monthly">月度</a>
+      <a href="#annual">年度</a>
+      <a href="#custom">自定义</a>
+      <a href="#acceptance">开发验收</a>
+    </nav>
+
+    <section class="flow" id="flow">
+      <div class="section-head">
+        <div>
+          <h2>整体页面流转</h2>
+          <p>首页承担门店定位、门店档案入口和经营信息入口；经营信息页按时间粒度展开，页面之间通过顶部 tab 切换。</p>
+        </div>
+      </div>
+      <div class="flow-map" aria-label="页面流转图">
+        <div class="flow-node primary"><small>入口</small><strong>门店首页</strong><code>home.html#store</code></div>
+        <div class="flow-node"><small>档案详情</small><strong>门店完整档案</strong><code>store-detail.html</code></div>
+        <div class="flow-node primary"><small>经营入口</small><strong>首页营收 Tab</strong><code>home.html#revenue</code></div>
+        <div class="flow-node"><small>时间粒度</small><strong>当日经营信息</strong><code>daily.html</code></div>
+        <div class="flow-node"><small>时间粒度</small><strong>月度 / 年度</strong><code>monthly.html · annual.html</code></div>
+        <div class="flow-node"><small>时间粒度</small><strong>自定义区间</strong><code>custom.html</code></div>
+      </div>
+      <div class="legend-row" aria-label="锚点类型说明">
+        <span><i class="dot biz"></i>业务判断区</span>
+        <span><i class="dot"></i>关键交互区</span>
+        <span><i class="dot dev"></i>数据或接口区</span>
+        <span><i class="dot warn"></i>边界与异常处理</span>
+      </div>
+    </section>
+
+    <section class="guide-section" id="home-store">
+      <div class="guide-title">
+        <div>
+          <h2>首页门店视图</h2>
+          <p>用于定位门店、筛选门店范围，并快速进入门店档案或营收信息。</p>
+        </div>
+        <a class="open-link" href="home.html#store">打开真实页面</a>
+      </div>
+      <div class="annotation-scene">
+        <svg class="connector-svg" aria-hidden="true"></svg>
+        <div class="phone-wrap">
+          <div class="phone-label"><span>home.html#store</span><span>390 x 844 预览</span></div>
+          <div class="phone-frame">
+            <iframe src="home.html#store" title="首页门店视图预览"></iframe>
+            <span class="hotspot" data-line="home-1" style="--x:50%;--y:9%">1</span>
+            <span class="hotspot" data-line="home-2" style="--x:50%;--y:18%">2</span>
+            <span class="hotspot biz" data-line="home-3" style="--x:50%;--y:47%">3</span>
+            <span class="hotspot dev" data-line="home-4" style="--x:50%;--y:65%">4</span>
+            <span class="hotspot" data-line="home-5" style="--x:50%;--y:87%">5</span>
+          </div>
+        </div>
+        <div class="notes">
+          <article class="note" data-line="home-1"><span class="note-num">1</span><h3>搜索、定位与地图上下文</h3><p>业务上先确定用户查看的是哪一家门店，以及筛选后的门店池数量。</p><dl><dt>交互</dt><dd>搜索回车更新地图标签，定位按钮给 toast 反馈。</dd><dt>开发</dt><dd>后续接地图 SDK、门店经纬度、区域筛选接口。</dd></dl></article>
+          <article class="note" data-line="home-2"><span class="note-num">2</span><h3>筛选条件</h3><p>区域、店型、商圈和状态作为门店列表筛选入口。</p><dl><dt>交互</dt><dd>select 改变后刷新结果文案。</dd><dt>验收</dt><dd>空结果时要有明确提示，不应保留旧门店状态。</dd></dl></article>
+          <article class="note biz" data-line="home-3"><span class="note-num">3</span><h3>门店信息 Tab</h3><p>展示门店基础信息、标签、照片、人员摘要，是经营看板的业务背景。</p><dl><dt>跳转</dt><dd>照片“查看全部”和“查看门店完整档案”进入 <code>store-detail.html</code>。</dd><dt>口径</dt><dd>当前为脱敏演示字段，正式版本替换为门店主数据。</dd></dl></article>
+          <article class="note dev" data-line="home-4"><span class="note-num">4</span><h3>照片和人员摘要</h3><p>给开发确认图片资源、员工画像和门店档案的聚合位置。</p><dl><dt>数据</dt><dd>图片来自 <code>assets/store-thumb-*.jpg</code> 和 <code>assets/store-image-*.png</code>。</dd><dt>边界</dt><dd>无图时使用占位图，不让横滑区域塌陷。</dd></dl></article>
+          <article class="note" data-line="home-5"><span class="note-num">5</span><h3>顶部 Tab 作为主入口</h3><p>门店信息、营收和利润共用首页容器，后续可作为小程序或 H5 的一级 tab。</p><dl><dt>交互</dt><dd>切换 tab 时保持页面内滚动定位，并更新 URL hash。</dd><dt>开发</dt><dd>利润页当前是演示占位，需等待真实利润字段接入。</dd></dl></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="guide-section" id="home-revenue">
+      <div class="guide-title">
+        <div>
+          <h2>首页营收 Tab</h2>
+          <p>给经营人员提供当天核心指标、时段表现和进入详细经营报表的路径。</p>
+        </div>
+        <a class="open-link" href="home.html#revenue">打开真实页面</a>
+      </div>
+      <div class="annotation-scene">
+        <svg class="connector-svg" aria-hidden="true"></svg>
+        <div class="phone-wrap">
+          <div class="phone-label"><span>home.html#revenue</span><span>首页营收摘要</span></div>
+          <div class="phone-frame">
+            <iframe src="home.html#revenue" title="首页营收 Tab 预览"></iframe>
+            <span class="hotspot dev" data-line="home-rev-1" style="--x:53%;--y:20%">1</span>
+            <span class="hotspot biz" data-line="home-rev-2" style="--x:50%;--y:31%">2</span>
+            <span class="hotspot" data-line="home-rev-3" style="--x:50%;--y:48%">3</span>
+            <span class="hotspot" data-line="home-rev-4" style="--x:50%;--y:63%">4</span>
+            <span class="hotspot" data-line="home-rev-5" style="--x:50%;--y:88%">5</span>
+          </div>
+        </div>
+        <div class="notes">
+          <article class="note dev" data-line="home-rev-1"><span class="note-num">1</span><h3>实时刷新口径</h3><p>首页营收按当日最大数据时间模拟刷新，按钮每次推进一个小时。</p><dl><dt>数据</dt><dd><code>window.SST_REVENUE_DATA.dailyRecords</code>，字段含 <code>d</code>、<code>slot</code>、<code>period</code>、<code>revenue</code>、<code>orders</code>、<code>biz</code>。</dd><dt>边界</dt><dd>到达最大时间后禁用刷新，避免展示不存在的实时数据。</dd></dl></article>
+          <article class="note biz" data-line="home-rev-2"><span class="note-num">2</span><h3>核心 KPI</h3><p>营收、订单、客单让店长快速判断当天是否偏离昨日。</p><dl><dt>计算</dt><dd>客单 = 营收 / 订单；增长率基于昨日同截止时间。</dd><dt>验收</dt><dd>无昨日数据时展示 <code>--</code>，不应计算为 0%。</dd></dl></article>
+          <article class="note" data-line="home-rev-3"><span class="note-num">3</span><h3>分时累计趋势</h3><p>说明当天到当前时间的累计营收走势，支持点击节点查看 tooltip。</p><dl><dt>交互</dt><dd>节点点击或键盘 Enter/Space 弹出明细。</dd><dt>开发</dt><dd>正式接入时需保留小时粒度，避免只给全日汇总。</dd></dl></article>
+          <article class="note" data-line="home-rev-4"><span class="note-num">4</span><h3>时段表现切换</h3><p>营业额和订单量在同一时段柱图内切换，用于发现午餐、晚餐、宵夜等强弱。</p><dl><dt>交互</dt><dd>两个按钮改变柱图指标，不跳页。</dd><dt>数据</dt><dd>按 <code>period</code> 聚合 <code>revenue</code> 或 <code>orders</code>。</dd></dl></article>
+          <article class="note" data-line="home-rev-5"><span class="note-num">5</span><h3>详细报表入口</h3><p>首页只做摘要，复杂分析进入当日报表。</p><dl><dt>跳转</dt><dd>CTA 到 <code>daily.html</code>。</dd><dt>开发</dt><dd>从首页进入时可默认带入门店和日期上下文。</dd></dl></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="guide-section" id="store-detail">
+      <div class="guide-title">
+        <div>
+          <h2>门店档案页</h2>
+          <p>承接首页的门店基础信息，展开门店运营资料、生命周期、照片和员工画像。</p>
+        </div>
+        <a class="open-link" href="store-detail.html">打开真实页面</a>
+      </div>
+      <div class="annotation-scene">
+        <svg class="connector-svg" aria-hidden="true"></svg>
+        <div class="phone-wrap">
+          <div class="phone-label"><span>store-detail.html</span><span>门店资料详情</span></div>
+          <div class="phone-frame">
+            <iframe src="store-detail.html" title="门店档案页预览"></iframe>
+            <span class="hotspot" data-line="store-1" style="--x:50%;--y:7%">1</span>
+            <span class="hotspot biz" data-line="store-2" style="--x:50%;--y:18%">2</span>
+            <span class="hotspot dev" data-line="store-3" style="--x:50%;--y:34%">3</span>
+            <span class="hotspot" data-line="store-4" style="--x:50%;--y:58%">4</span>
+            <span class="hotspot" data-line="store-5" style="--x:50%;--y:77%">5</span>
+          </div>
+        </div>
+        <div class="notes">
+          <article class="note" data-line="store-1"><span class="note-num">1</span><h3>返回路径</h3><p>顶部返回应回到首页门店信息状态，而不是首页默认状态。</p><dl><dt>跳转</dt><dd><code>home.html#store</code></dd><dt>验收</dt><dd>返回后 tab 和滚动位置要可预期。</dd></dl></article>
+          <article class="note biz" data-line="store-2"><span class="note-num">2</span><h3>基础档案</h3><p>展示门店名称、地址、店型、营业状态、管理区域和经理信息。</p><dl><dt>数据</dt><dd>正式版来自门店主数据和组织架构。</dd><dt>边界</dt><dd>个人手机号需脱敏，离职或空经理要展示占位。</dd></dl></article>
+          <article class="note dev" data-line="store-3"><span class="note-num">3</span><h3>运营信息和生命周期</h3><p>面积、座位、餐桌、营业时间以及开店/改造/模式切换记录。</p><dl><dt>接口</dt><dd>建议分为门店静态属性与生命周期事件列表。</dd><dt>排序</dt><dd>生命周期按时间升序或最近事件突出，需统一规则。</dd></dl></article>
+          <article class="note" data-line="store-4"><span class="note-num">4</span><h3>门店照片</h3><p>照片横滑预览，点击进入大图灯箱。</p><dl><dt>交互</dt><dd>支持横向滚动、点击放大、Esc 关闭。</dd><dt>验收</dt><dd>图片加载失败要保留标题和替代文本。</dd></dl></article>
+          <article class="note" data-line="store-5"><span class="note-num">5</span><h3>员工画像</h3><p>聚合员工数量、年龄、司龄，并按岗位展开员工卡片。</p><dl><dt>数据</dt><dd>当前来自 <code>data/staff_info.xlsx</code> 生成内容，正式接入员工档案服务。</dd><dt>边界</dt><dd>岗位下无人员时保留分组但展示空状态。</dd></dl></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="guide-section" id="daily">
+      <div class="guide-title">
+        <div>
+          <h2>当日经营信息</h2>
+          <p>面向当天经营跟进，强调截止时间、昨日/上周对比、时段表现和产品明细。</p>
+        </div>
+        <a class="open-link" href="daily.html">打开真实页面</a>
+      </div>
+      <div class="annotation-scene">
+        <svg class="connector-svg" aria-hidden="true"></svg>
+        <div class="phone-wrap">
+          <div class="phone-label"><span>daily.html</span><span>当日粒度</span></div>
+          <div class="phone-frame">
+            <iframe src="daily.html" title="当日经营信息预览"></iframe>
+            <span class="hotspot" data-line="daily-1" style="--x:50%;--y:19%">1</span>
+            <span class="hotspot biz" data-line="daily-2" style="--x:50%;--y:34%">2</span>
+            <span class="hotspot" data-line="daily-3" style="--x:50%;--y:52%">3</span>
+            <span class="hotspot dev" data-line="daily-4" style="--x:50%;--y:67%">4</span>
+            <span class="hotspot" data-line="daily-5" style="--x:50%;--y:84%">5</span>
+          </div>
+        </div>
+        <div class="notes">
+          <article class="note" data-line="daily-1"><span class="note-num">1</span><h3>时间与对比方式</h3><p>当日页固定当前日期，支持“对比昨日 / 对比上周”切换。</p><dl><dt>交互</dt><dd>刷新按钮推进截止时间，compare toggle 更新 KPI 文案。</dd><dt>数据</dt><dd><code>dailyRecords</code> 按 <code>d</code> 和 <code>slot</code> 过滤。</dd></dl></article>
+          <article class="note biz" data-line="daily-2"><span class="note-num">2</span><h3>当日 KPI</h3><p>让店长判断当前时间点的营收、订单、客单是否达预期。</p><dl><dt>计算</dt><dd>当前截止时间累计值，对比对象也按同一截止时间截断。</dd><dt>边界</dt><dd>对比日不存在时显示 <code>--</code>。</dd></dl></article>
+          <article class="note" data-line="daily-3"><span class="note-num">3</span><h3>分时累计趋势</h3><p>用折线和节点 tooltip 解释当天增长路径，节假日标记用于提醒异常波动。</p><dl><dt>交互</dt><dd>节点可点击，tooltip 要可关闭。</dd><dt>开发</dt><dd>正式版需提供节假日或活动日标识。</dd></dl></article>
+          <article class="note dev" data-line="daily-4"><span class="note-num">4</span><h3>时段表现</h3><p>按凌晨、早餐、午餐、下午茶、晚餐、宵夜聚合营业额或订单量。</p><dl><dt>数据</dt><dd><code>period</code> 是聚合维度。</dd><dt>验收</dt><dd>时段缺失时展示 0 或空柱，不删除分类轴。</dd></dl></article>
+          <article class="note" data-line="daily-5"><span class="note-num">5</span><h3>业务归属和产品 TOP10</h3><p>用于区分堂食/外送贡献，并定位当天热销商品。</p><dl><dt>数据</dt><dd><code>biz</code>、渠道字段、<code>dailyProducts</code>。</dd><dt>交互</dt><dd>产品更多进入明细层，问号展示“不含服务费产品、玩具”。</dd></dl></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="guide-section" id="monthly">
+      <div class="guide-title">
+        <div>
+          <h2>月度经营信息</h2>
+          <p>按月查看经营进度、预算达成、每日趋势、星期表现和产品结构。</p>
+        </div>
+        <a class="open-link" href="monthly.html">打开真实页面</a>
+      </div>
+      <div class="annotation-scene">
+        <svg class="connector-svg" aria-hidden="true"></svg>
+        <div class="phone-wrap">
+          <div class="phone-label"><span>monthly.html</span><span>月度粒度</span></div>
+          <div class="phone-frame">
+            <iframe src="monthly.html" title="月度经营信息预览"></iframe>
+            <span class="hotspot" data-line="month-1" style="--x:50%;--y:19%">1</span>
+            <span class="hotspot dev" data-line="month-2" style="--x:50%;--y:34%">2</span>
+            <span class="hotspot biz" data-line="month-3" style="--x:50%;--y:51%">3</span>
+            <span class="hotspot" data-line="month-4" style="--x:50%;--y:68%">4</span>
+            <span class="hotspot warn" data-line="month-5" style="--x:50%;--y:82%">5</span>
+          </div>
+        </div>
+        <div class="notes">
+          <article class="note" data-line="month-1"><span class="note-num">1</span><h3>月份选择和剔除团订</h3><p>月份弹层用于切换历史月份；团订开关控制经营分析口径。</p><dl><dt>交互</dt><dd>未来月份置灰；剔除团订切换后所有图表重算。</dd><dt>数据</dt><dd><code>normalOrderType</code> 用于识别常规订单。</dd></dl></article>
+          <article class="note dev" data-line="month-2"><span class="note-num">2</span><h3>预算达成</h3><p>月度页增加预算相关 KPI，开发需要从预算表或目标服务接入。</p><dl><dt>数据</dt><dd><code>budgets[YYYYMM]</code>。</dd><dt>计算</dt><dd>完成率 = 月累计营收 / 月预算。</dd></dl></article>
+          <article class="note biz" data-line="month-3"><span class="note-num">3</span><h3>每日趋势和同比口径</h3><p>当前月与上月同期对比，避免用完整上月直接比较未完结月份。</p><dl><dt>规则</dt><dd>未完结月份按当前最大数据日截断。</dd><dt>验收</dt><dd>图例和筛选口径要同步更新。</dd></dl></article>
+          <article class="note" data-line="month-4"><span class="note-num">4</span><h3>星期表现</h3><p>按星期几聚合日均营收，用于识别周末和工作日差异。</p><dl><dt>开发</dt><dd>保留星期维度，不要只返回月总计。</dd><dt>边界</dt><dd>样本天数过少时应提示统计不稳定。</dd></dl></article>
+          <article class="note warn" data-line="month-5"><span class="note-num">5</span><h3>渠道和产品明细</h3><p>渠道表、业务归属、产品 TOP10 都受月份和团订口径影响。</p><dl><dt>一致性</dt><dd>筛选条件必须贯穿 KPI、趋势、渠道、产品。</dd><dt>异常</dt><dd>退单或负收入商品需保留但明确排序规则。</dd></dl></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="guide-section" id="annual">
+      <div class="guide-title">
+        <div>
+          <h2>年度经营信息</h2>
+          <p>面向年度目标追踪，重点是累计预算达成、月度营收和年度预测。</p>
+        </div>
+        <a class="open-link" href="annual.html">打开真实页面</a>
+      </div>
+      <div class="annotation-scene">
+        <svg class="connector-svg" aria-hidden="true"></svg>
+        <div class="phone-wrap">
+          <div class="phone-label"><span>annual.html</span><span>年度粒度</span></div>
+          <div class="phone-frame">
+            <iframe src="annual.html" title="年度经营信息预览"></iframe>
+            <span class="hotspot" data-line="annual-1" style="--x:50%;--y:19%">1</span>
+            <span class="hotspot biz" data-line="annual-2" style="--x:50%;--y:35%">2</span>
+            <span class="hotspot dev" data-line="annual-3" style="--x:50%;--y:53%">3</span>
+            <span class="hotspot" data-line="annual-4" style="--x:50%;--y:68%">4</span>
+            <span class="hotspot warn" data-line="annual-5" style="--x:50%;--y:84%">5</span>
+          </div>
+        </div>
+        <div class="notes">
+          <article class="note" data-line="annual-1"><span class="note-num">1</span><h3>年份范围和团订口径</h3><p>年度页使用当前年份，数据截止到最大数据日。</p><dl><dt>规则</dt><dd>当前年只统计到当前最大日期，历史年可统计全年。</dd><dt>交互</dt><dd>顶部 tab 可切到当日、月度、自定义。</dd></dl></article>
+          <article class="note biz" data-line="annual-2"><span class="note-num">2</span><h3>年度核心 KPI</h3><p>聚合年累计营收、订单、客单，并与上年同期比较。</p><dl><dt>计算</dt><dd>上年同期截止日期与当前年截止日期的月日一致。</dd><dt>验收</dt><dd>闰年或缺少同期数据时不要产生错误日期。</dd></dl></article>
+          <article class="note dev" data-line="annual-3"><span class="note-num">3</span><h3>累计预算达成趋势</h3><p>用于判断年度目标是否按进度推进。</p><dl><dt>数据</dt><dd>全年预算来自每月 <code>budgets</code> 累加。</dd><dt>计算</dt><dd>累计营收与累计预算按月份生成折线。</dd></dl></article>
+          <article class="note" data-line="annual-4"><span class="note-num">4</span><h3>月度营收柱图</h3><p>展示 1-12 月营收，未来月份应为空或占位，不能误认为 0。</p><dl><dt>边界</dt><dd>无数据月份展示空态柱。</dd><dt>开发</dt><dd>轴刻度需按最大月营收自适应。</dd></dl></article>
+          <article class="note warn" data-line="annual-5"><span class="note-num">5</span><h3>年度预测和说明</h3><p>年度页会基于已过天数估算全年达成风险。</p><dl><dt>风险</dt><dd>预测不是承诺值，需在接口或 UI 文案中明确口径。</dd><dt>异常</dt><dd>年初样本少时预测波动大，建议显示提示。</dd></dl></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="guide-section" id="custom">
+      <div class="guide-title">
+        <div>
+          <h2>自定义区间经营信息</h2>
+          <p>支持业务方按任意日期区间复盘活动、节假日、商圈变化或专项问题。</p>
+        </div>
+        <a class="open-link" href="custom.html">打开真实页面</a>
+      </div>
+      <div class="annotation-scene">
+        <svg class="connector-svg" aria-hidden="true"></svg>
+        <div class="phone-wrap">
+          <div class="phone-label"><span>custom.html</span><span>自定义日期区间</span></div>
+          <div class="phone-frame">
+            <iframe src="custom.html" title="自定义区间经营信息预览"></iframe>
+            <span class="hotspot" data-line="custom-1" style="--x:50%;--y:19%">1</span>
+            <span class="hotspot biz" data-line="custom-2" style="--x:50%;--y:34%">2</span>
+            <span class="hotspot dev" data-line="custom-3" style="--x:50%;--y:52%">3</span>
+            <span class="hotspot" data-line="custom-4" style="--x:50%;--y:69%">4</span>
+            <span class="hotspot warn" data-line="custom-5" style="--x:50%;--y:84%">5</span>
+          </div>
+        </div>
+        <div class="notes">
+          <article class="note" data-line="custom-1"><span class="note-num">1</span><h3>开始/结束日期</h3><p>用户选择任意区间，并可同步控制是否剔除团订。</p><dl><dt>交互</dt><dd>两个 date input 改变后立即重算。</dd><dt>验收</dt><dd>开始日期晚于结束日期时应自动纠正或提示。</dd></dl></article>
+          <article class="note biz" data-line="custom-2"><span class="note-num">2</span><h3>区间 KPI</h3><p>用于活动复盘或异常时段分析，不展示同比环比，避免误导。</p><dl><dt>计算</dt><dd>营收、订单、客单按区间内记录汇总。</dd><dt>边界</dt><dd>无数据区间展示空态，不复用上一次结果。</dd></dl></article>
+          <article class="note dev" data-line="custom-3"><span class="note-num">3</span><h3>每日趋势</h3><p>区间页只画当前区间每日营收，开发需补齐所有日期轴。</p><dl><dt>数据</dt><dd><code>records</code> 按 <code>d</code> 日期过滤。</dd><dt>验收</dt><dd>中间无营业数据的日期应显示为 0 或断点，规则需统一。</dd></dl></article>
+          <article class="note" data-line="custom-4"><span class="note-num">4</span><h3>业务归属和渠道</h3><p>帮助判断指定区间内堂食、外送、渠道结构是否变化。</p><dl><dt>开发</dt><dd>所有渠道明细必须继承日期区间和团订口径。</dd><dt>排序</dt><dd>按营收降序展示，低占比渠道可折叠。</dd></dl></article>
+          <article class="note warn" data-line="custom-5"><span class="note-num">5</span><h3>产品 TOP10 明细</h3><p>用于专项复盘具体商品贡献。</p><dl><dt>数据</dt><dd><code>products</code> 按日期和分类过滤。</dd><dt>异常</dt><dd>服务费、玩具排除口径需要由后端返回或前端固定配置。</dd></dl></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="guide-section" id="data">
+      <div class="guide-title">
+        <div>
+          <h2>数据契约摘要</h2>
+          <p>当前 demo 的数据全部来自本地脚本注入，正式开发时建议保持字段语义稳定，只替换数据来源。</p>
+        </div>
+      </div>
+      <div class="data-contract">
+        <div class="contract-item"><strong><code>records</code></strong><span>月度、年度、自定义页使用的日粒度经营记录。</span></div>
+        <div class="contract-item"><strong><code>dailyRecords</code></strong><span>首页和当日页使用的分时记录，含 slot 和 period。</span></div>
+        <div class="contract-item"><strong><code>budgets</code></strong><span>按 YYYYMM 存储预算目标，用于预算达成率。</span></div>
+        <div class="contract-item"><strong><code>products / dailyProducts</code></strong><span>产品销量和收入明细，用于 TOP10 与更多明细。</span></div>
+        <div class="contract-item"><strong><code>normalOrderType</code></strong><span>剔除团订时保留的常规订单类型。</span></div>
+        <div class="contract-item"><strong><code>biz / channel</code></strong><span>业务归属和渠道结构的聚合维度。</span></div>
+        <div class="contract-item"><strong><code>d / m</code></strong><span>日期和月份键，分别为 YYYY-MM-DD 和 YYYYMM。</span></div>
+        <div class="contract-item"><strong>脱敏要求</strong><span>门店、人员、电话、地址、真实经营数据上线前需统一脱敏或授权。</span></div>
+      </div>
+    </section>
+
+    <section class="acceptance" id="acceptance">
+      <h2>开发验收清单</h2>
+      <div class="check-grid">
+        <div class="check"><strong>页面可达</strong>所有链接、hash、tab 切换、返回路径都能打开正确页面状态。</div>
+        <div class="check"><strong>口径一致</strong>日期、团订剔除、业务归属、渠道和产品明细共用同一过滤条件。</div>
+        <div class="check"><strong>空状态</strong>无数据、无预算、无产品、无照片、无员工都不能沿用旧结果。</div>
+        <div class="check"><strong>实时截止</strong>首页和当日页按相同截止时间计算当前值与对比值。</div>
+        <div class="check"><strong>响应式</strong>390 x 844、窄屏和桌面宽屏都不出现文字重叠或连线漂移。</div>
+        <div class="check"><strong>接口替换</strong>保留当前字段语义，正式接口只替换数据装载层，不重写展示逻辑。</div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const drawScene = scene => {
+        const svg = scene.querySelector('.connector-svg');
+        if (!svg || getComputedStyle(svg).display === 'none') return;
+        const sceneRect = scene.getBoundingClientRect();
+        const paths = [];
+        scene.querySelectorAll('.hotspot[data-line]').forEach(point => {
+          const id = point.dataset.line;
+          const note = scene.querySelector(`.note[data-line="${id}"]`);
+          if (!note) return;
+          const pointRect = point.getBoundingClientRect();
+          const noteRect = note.getBoundingClientRect();
+          const x1 = pointRect.left + pointRect.width / 2 - sceneRect.left;
+          const y1 = pointRect.top + pointRect.height / 2 - sceneRect.top;
+          const x2 = noteRect.left - sceneRect.left;
+          const y2 = noteRect.top + Math.min(noteRect.height / 2, 52) - sceneRect.top;
+          const bend = Math.max(64, Math.min(160, (x2 - x1) * .45));
+          paths.push(`<path d="M ${x1.toFixed(1)} ${y1.toFixed(1)} C ${(x1 + bend).toFixed(1)} ${y1.toFixed(1)}, ${(x2 - bend).toFixed(1)} ${y2.toFixed(1)}, ${x2.toFixed(1)} ${y2.toFixed(1)}"></path><circle cx="${x1.toFixed(1)}" cy="${y1.toFixed(1)}" r="3"></circle><circle cx="${x2.toFixed(1)}" cy="${y2.toFixed(1)}" r="3"></circle>`);
+        });
+        svg.setAttribute('viewBox', `0 0 ${Math.max(1, sceneRect.width).toFixed(0)} ${Math.max(1, sceneRect.height).toFixed(0)}`);
+        svg.innerHTML = paths.join('');
+      };
+      const drawAll = () => document.querySelectorAll('.annotation-scene').forEach(drawScene);
+      let frame = 0;
+      const scheduleDraw = () => {
+        cancelAnimationFrame(frame);
+        frame = requestAnimationFrame(drawAll);
+      };
+      window.addEventListener('load', scheduleDraw);
+      window.addEventListener('resize', scheduleDraw);
+      document.querySelectorAll('iframe').forEach(frameEl => frameEl.addEventListener('load', scheduleDraw));
+      if ('ResizeObserver' in window) {
+        const observer = new ResizeObserver(scheduleDraw);
+        document.querySelectorAll('.annotation-scene,.note,.phone-frame').forEach(el => observer.observe(el));
+      }
+      scheduleDraw();
+    })();
+  </script>
+</body>
+</html>
